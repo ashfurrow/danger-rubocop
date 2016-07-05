@@ -6,7 +6,11 @@ A [Danger](https://github.com/danger/danger) plugin for [Rubocop](https://github
 
 ## Installation
 
-Coming soon!
+Add this line to your Gemfile:
+
+```rb
+gem 'danger-rubocop'
+```
 
 ## Usage
 

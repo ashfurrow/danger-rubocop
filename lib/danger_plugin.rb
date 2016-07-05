@@ -7,8 +7,8 @@ module Danger
   #
   #          rubocop.run
   #
-  # @see  artsy/eigen
-  # @tags swift
+  # @see  Moya/Aeryn
+  # @tags ruby, rubocop, linter
   #
   class DangerRubocop < Plugin
 

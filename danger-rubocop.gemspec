@@ -6,10 +6,10 @@ require 'version'
 Gem::Specification.new do |spec|
   spec.name          = 'danger-rubocop'
   spec.version       = DangerRubocop::VERSION
-  spec.authors       = ['Ash Furrow', 'David Grandinetti', 'Orta Therox']
-  spec.email         = ['ash@ashfurrow.com', 'dbgrandi@gmail.com', 'orta.therox@gmail.com']
-  spec.description   = %q{A Danger plugin for running Ruby through Rubocop.}
-  spec.summary       = %q{A Danger plugin for running Ruby through Rubocop.}
+  spec.author        = 'Ash Furrow'
+  spec.email         = 'ash@ashfurrow.com'
+  spec.description   = %q{A Danger plugin for running Ruby files through Rubocop.}
+  spec.summary       = %q{A Danger plugin for running Ruby files through Rubocop.}
   spec.homepage      = 'https://github.com/ashfurrow/danger-rubocop'
   spec.license       = 'MIT'
 
