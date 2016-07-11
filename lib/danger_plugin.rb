@@ -12,11 +12,11 @@ module Danger
   #
   class DangerRubocop < Plugin
 
-    # Runs Ruby files through Rubocop. Generates a `markdown` list of warnings. 
+    # Runs Ruby files through Rubocop. Generates a `markdown` list of warnings.
     #
     # @param   [String] files
-    #          A globbed string which should return the files that you want to 
-    #          run through, defaults to nil. If nil, modified and added files 
+    #          A globbed string which should return the files that you want to
+    #          run through, defaults to nil. If nil, modified and added files
     #          from the diff will be used.
     # @return  [void]
     #
@@ -28,15 +28,19 @@ module Danger
 
       return if offending_files.empty?
 
-      message = '### Rubocop violations'
-      message << 'File | Line | Reason |\n'
-      message << '| --- | ----- | ----- |\n'  
+      require 'terminal-table'
 
-      offending_files.each do |f|
-        f['offenses'].each do |o|
-          message << "#{f['path']} | #{o['location']['line']} | #{o['message']} \n"
+
+
+      message = "### Rubocop violations\n\n"
+      message += Terminal::Table.new(
+        headings: %w(File Line Reason),
+        rows: offending_files.flat_map do |file|
+          file['offenses'].map do |offense|
+            [file['path'], offense['location']['line'], offense['message']]
+          end
         end
-      end
+      ).to_s
 
       markdown message
     end

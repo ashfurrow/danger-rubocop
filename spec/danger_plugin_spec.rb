@@ -5,7 +5,7 @@ module Danger
     it 'is a plugin' do
       expect(Danger::DangerRubocop < Danger::Plugin).to be_truthy
     end
-    
+
     describe 'with Dangerfile' do
       before do
         @dangerfile = testing_dangerfile
@@ -44,12 +44,12 @@ module Danger
           # A title
           expect(output).to include("Rubocop violations")
           # A warning
-          expect(output).to include("ruby_file.rb | 13 | Don't do that!")
+          expect(output).to include("ruby_file.rb | 13   | Don't do that!")
         end
 
         it 'handles no files' do
           allow(@rubocop).to receive(:modified_files).and_return(['spec/fixtures/ruby_file.rb'])
-          allow(@rubocop).to receive(:added_files).and_return([])          
+          allow(@rubocop).to receive(:added_files).and_return([])
           allow(@rubocop).to receive(:`).with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb').and_return(@rubocop_response)
 
           @rubocop.run
