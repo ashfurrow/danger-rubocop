@@ -16,13 +16,13 @@ module Danger
         before do
           # Set up our stubbed JSON response
           response = {
-            "files" => [
+            'files' => [
               {
-                "path": "ruby_file.rb",
-                "offenses" => [
+                'path' => 'ruby_file.rb',
+                'offenses' => [
                   {
-                    "message" => "Don't do that!",
-                    "location" => {"line": 13}
+                    'message' => "Don't do that!",
+                    'location' => { 'line' => 13 }
                   }
                 ]
               }
@@ -32,25 +32,30 @@ module Danger
         end
 
         it 'handles a known rubocop report' do
-          allow(@rubocop).to receive(:`).with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb').and_return(@rubocop_response)
+          allow(@rubocop).to receive(:`)
+            .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
+            .and_return(@rubocop_response)
 
           # Do it
-          @rubocop.run("spec/fixtures/*.rb")
+          @rubocop.run('spec/fixtures/*.rb')
 
           output = @rubocop.status_report[:markdowns].first
 
           expect(output).to_not be_empty
 
           # A title
-          expect(output).to include("Rubocop violations")
+          expect(output).to include('Rubocop violations')
           # A warning
           expect(output).to include("ruby_file.rb | 13   | Don't do that!")
         end
 
         it 'handles no files' do
-          allow(@rubocop).to receive(:modified_files).and_return(['spec/fixtures/ruby_file.rb'])
+          allow(@rubocop).to receive(:modified_files)
+            .and_return(['spec/fixtures/ruby_file.rb'])
           allow(@rubocop).to receive(:added_files).and_return([])
-          allow(@rubocop).to receive(:`).with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb').and_return(@rubocop_response)
+          allow(@rubocop).to receive(:`)
+            .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
+            .and_return(@rubocop_response)
 
           @rubocop.run
 
