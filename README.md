@@ -14,22 +14,30 @@ gem 'danger-rubocop'
 
 ## Usage
 
-The easiest way to use is just add this to your Dangerfile:
+Run Ruby files through Rubocop.
+Results are passed out as a table in markdown.
 
-```rb
+
+> Specifying custom config file.
+> ```ruby
 rubocop.lint
-```
+> ```
 
-That will lint any changed or added Ruby files in the PR.
+> Lint specific files in a folder, when they change
+> ```ruby
+public_files = (modified_files + added_files).select { |path| path.include?("/public/") }
+rubocop.lint public_files
+> ```
 
-You can also provide a list of files manually:
 
-```rb
-# Look through all changed ruby files
-rb_files = (modified_files + added_files).select { |f| f.end_with?(".rb") }
+#### Methods
 
-rubocop.run rb_files
-```
+
+`lint(files: String)`
+
+ Runs Ruby files through Rubocop. Generates a `markdown` list of warnings.
+
+
 
 ## License
 
