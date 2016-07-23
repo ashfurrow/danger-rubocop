@@ -37,7 +37,7 @@ module Danger
             .and_return(@rubocop_response)
 
           # Do it
-          @rubocop.run('spec/fixtures/*.rb')
+          @rubocop.lint('spec/fixtures/*.rb')
 
           output = @rubocop.status_report[:markdowns].first
 
@@ -50,14 +50,14 @@ module Danger
         end
 
         it 'handles no files' do
-          allow(@rubocop).to receive(:modified_files)
+          allow(@rubocop.git).to receive(:modified_files)
             .and_return(['spec/fixtures/ruby_file.rb'])
-          allow(@rubocop).to receive(:added_files).and_return([])
+          allow(@rubocop.git).to receive(:added_files).and_return([])
           allow(@rubocop).to receive(:`)
             .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
             .and_return(@rubocop_response)
 
-          @rubocop.run
+          @rubocop.lint
 
           expect(@rubocop.status_report[:markdowns].first).to_not be_empty
         end
