@@ -4,7 +4,13 @@ module Danger
   #
   # @example Specifying custom config file.
   #
-  #          rubocop.run
+  #          rubocop.lint
+  #
+  # @example Lint specific files in a folder, when they change
+  #
+  #  public_files = (modified_files + added_files).select { |path| path.include?("/public/") }
+  #  rubocop.lint public_files
+  #
   #
   # @see  Moya/Aeryn
   # @tags ruby, rubocop, linter
@@ -18,8 +24,8 @@ module Danger
     #          from the diff will be used.
     # @return  [void]
     #
-    def run(files = nil)
-      files_to_lint = files ? Dir.glob(files) : (modified_files + added_files)
+    def lint(files = nil)
+      files_to_lint = files ? Dir.glob(files) : (git.modified_files + git.added_files)
       files_to_lint.select! { |f| f.end_with? 'rb' }
 
       offending_files = rubocop(files_to_lint)
@@ -32,7 +38,8 @@ module Danger
 
     def rubocop(files_to_lint)
       rubocop_results = files_to_lint.flat_map do |f|
-        JSON.parse(`bundle exec rubocop -f json #{f}`)['files']
+        prefix = File.exist?('Gemfile') ? 'bundle exec' : ''
+        JSON.parse(`#{prefix} rubocop -f json #{f}`)['files']
       end
       rubocop_results.select { |f| f['offenses'].count > 0 }
     end
