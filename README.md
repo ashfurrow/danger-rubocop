@@ -17,7 +17,7 @@ gem 'danger-rubocop'
 The easiest way to use is just add this to your Dangerfile:
 
 ```rb
-rubocop.run
+rubocop.lint
 ```
 
 That will lint any changed or added Ruby files in the PR.
@@ -25,7 +25,7 @@ That will lint any changed or added Ruby files in the PR.
 You can also provide a list of files manually:
 
 ```rb
-# Look through all changed Markdown files
+# Look through all changed ruby files
 rb_files = (modified_files + added_files).select { |f| f.end_with?(".rb") }
 
 rubocop.run rb_files
