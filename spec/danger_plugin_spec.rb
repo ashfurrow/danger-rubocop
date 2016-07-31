@@ -61,7 +61,6 @@ module Danger
 
           formatted_table = <<-EOS
 ### Rubocop violations\n
-|--------------|------|----------------|
 | File         | Line | Reason         |
 |--------------|------|----------------|
 | ruby_file.rb | 13   | Don't do that! |
