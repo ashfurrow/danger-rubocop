@@ -50,6 +50,7 @@ module Danger
       message = "### Rubocop violations\n\n"
       message + Terminal::Table.new(
         headings: %w(File Line Reason),
+        style: { border_i: '|' },
         rows: offending_files.flat_map do |file|
           file['offenses'].map do |offense|
             [file['path'], offense['location']['line'], offense['message']]

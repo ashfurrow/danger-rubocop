@@ -49,6 +49,27 @@ module Danger
           expect(output).to include("ruby_file.rb | 13   | Don't do that!")
         end
 
+        it 'is formatted as a markdown table' do
+          allow(@rubocop.git).to receive(:modified_files)
+            .and_return(['spec/fixtures/ruby_file.rb'])
+          allow(@rubocop.git).to receive(:added_files).and_return([])
+          allow(@rubocop).to receive(:`)
+            .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
+            .and_return(@rubocop_response)
+
+          @rubocop.lint
+
+          formatted_table = <<-EOS
+### Rubocop violations\n
+|--------------|------|----------------|
+| File         | Line | Reason         |
+|--------------|------|----------------|
+| ruby_file.rb | 13   | Don't do that! |
+|--------------|------|----------------|
+EOS
+          expect(@rubocop.status_report[:markdowns].first).to eq(formatted_table.chomp)
+        end
+
         it 'handles no files' do
           allow(@rubocop.git).to receive(:modified_files)
             .and_return(['spec/fixtures/ruby_file.rb'])
