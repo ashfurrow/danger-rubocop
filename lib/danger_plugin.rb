@@ -57,7 +57,7 @@ module Danger
           end
         end
       ).to_s
-      message + table.split("\n").drop(1).join("\n")
+      message + table.split("\n")[1..-2].join("\n")
     end
   end
 end

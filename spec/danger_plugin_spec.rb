@@ -64,7 +64,6 @@ module Danger
 | File         | Line | Reason         |
 |--------------|------|----------------|
 | ruby_file.rb | 13   | Don't do that! |
-|--------------|------|----------------|
 EOS
           expect(@rubocop.status_report[:markdowns].first).to eq(formatted_table.chomp)
         end
