@@ -48,14 +48,16 @@ module Danger
       require 'terminal-table'
 
       message = "### Rubocop violations\n\n"
-      message + Terminal::Table.new(
+      table = Terminal::Table.new(
         headings: %w(File Line Reason),
+        style: { border_i: '|' },
         rows: offending_files.flat_map do |file|
           file['offenses'].map do |offense|
             [file['path'], offense['location']['line'], offense['message']]
           end
         end
       ).to_s
+      message + table.split("\n")[1..-2].join("\n")
     end
   end
 end
