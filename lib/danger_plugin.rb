@@ -26,7 +26,6 @@ module Danger
     #
     def lint(files = nil)
       files_to_lint = files ? Dir.glob(files) : (git.modified_files + git.added_files)
-      files_to_lint.select! { |f| f.end_with? 'rb' }
 
       offending_files = rubocop(files_to_lint)
       return if offending_files.empty?
