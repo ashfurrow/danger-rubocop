@@ -18,11 +18,20 @@ module Danger
           response = {
             'files' => [
               {
-                'path' => 'ruby_file.rb',
+                'path' => 'spec/fixtures/ruby_file.rb',
                 'offenses' => [
                   {
                     'message' => "Don't do that!",
                     'location' => { 'line' => 13 }
+                  }
+                ]
+              },
+              {
+                'path' => 'spec/fixtures/another_ruby_file.rb',
+                'offenses' => [
+                  {
+                    'message' => "Don't do that!",
+                    'location' => { 'line' => 23 }
                   }
                 ]
               }
@@ -31,13 +40,13 @@ module Danger
           @rubocop_response = response.to_json
         end
 
-        it 'handles a known rubocop report' do
+        it 'handles a rubocop report for specified files' do
           allow(@rubocop).to receive(:`)
-            .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
+            .with('bundle exec rubocop -f json')
             .and_return(@rubocop_response)
 
           # Do it
-          @rubocop.lint('spec/fixtures/*.rb')
+          @rubocop.lint('spec/fixtures/ruby*.rb')
 
           output = @rubocop.status_report[:markdowns].first
 
@@ -46,7 +55,25 @@ module Danger
           # A title
           expect(output).to include('Rubocop violations')
           # A warning
-          expect(output).to include("ruby_file.rb | 13   | Don't do that!")
+          expect(output).to include("spec/fixtures/ruby_file.rb | 13   | Don't do that!")
+        end
+
+        it 'handles a rubocop report for files changed in the PR' do
+          allow(@rubocop.git).to receive(:added_files).and_return([])
+          allow(@rubocop.git).to receive(:modified_files)
+            .and_return(["spec/fixtures/another_ruby_file.rb"])
+
+          allow(@rubocop).to receive(:`)
+            .with('bundle exec rubocop -f json')
+            .and_return(@rubocop_response)
+
+          @rubocop.lint
+
+          output = @rubocop.status_report[:markdowns].first
+
+          expect(output).to_not be_empty
+          expect(output).to include('Rubocop violations')
+          expect(output).to include("spec/fixtures/another_ruby_file.rb | 23   | Don't do that!")
         end
 
         it 'is formatted as a markdown table' do
@@ -54,31 +81,18 @@ module Danger
             .and_return(['spec/fixtures/ruby_file.rb'])
           allow(@rubocop.git).to receive(:added_files).and_return([])
           allow(@rubocop).to receive(:`)
-            .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
+            .with('bundle exec rubocop -f json')
             .and_return(@rubocop_response)
 
           @rubocop.lint
 
           formatted_table = <<-EOS
 ### Rubocop violations\n
-| File         | Line | Reason         |
-|--------------|------|----------------|
-| ruby_file.rb | 13   | Don't do that! |
+| File                       | Line | Reason         |
+|----------------------------|------|----------------|
+| spec/fixtures/ruby_file.rb | 13   | Don't do that! |
 EOS
           expect(@rubocop.status_report[:markdowns].first).to eq(formatted_table.chomp)
-        end
-
-        it 'handles no files' do
-          allow(@rubocop.git).to receive(:modified_files)
-            .and_return(['spec/fixtures/ruby_file.rb'])
-          allow(@rubocop.git).to receive(:added_files).and_return([])
-          allow(@rubocop).to receive(:`)
-            .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
-            .and_return(@rubocop_response)
-
-          @rubocop.lint
-
-          expect(@rubocop.status_report[:markdowns].first).to_not be_empty
         end
       end
     end

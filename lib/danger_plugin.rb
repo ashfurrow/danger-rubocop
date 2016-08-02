@@ -26,7 +26,6 @@ module Danger
     #
     def lint(files = nil)
       files_to_lint = files ? Dir.glob(files) : (git.modified_files + git.added_files)
-      files_to_lint.select! { |f| f.end_with? 'rb' }
 
       offending_files = rubocop(files_to_lint)
       return if offending_files.empty?
@@ -37,11 +36,10 @@ module Danger
     private
 
     def rubocop(files_to_lint)
-      rubocop_results = files_to_lint.flat_map do |f|
-        prefix = File.exist?('Gemfile') ? 'bundle exec' : ''
-        JSON.parse(`#{prefix} rubocop -f json #{f}`)['files']
-      end
-      rubocop_results.select { |f| f['offenses'].count > 0 }
+      rubocop_output = `#{'bundle exec ' if File.exist?('Gemfile')}rubocop -f json`
+
+      JSON.parse(rubocop_output)['files']
+        .select { |f| files_to_lint.include?(f['path']) && f['offenses'].any? }
     end
 
     def offenses_message(offending_files)
