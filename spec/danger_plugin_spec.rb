@@ -18,7 +18,7 @@ module Danger
           response = {
             'files' => [
               {
-                'path' => 'ruby_file.rb',
+                'path' => 'spec/fixtures/ruby_file.rb',
                 'offenses' => [
                   {
                     'message' => "Don't do that!",
@@ -33,7 +33,7 @@ module Danger
 
         it 'handles a known rubocop report' do
           allow(@rubocop).to receive(:`)
-            .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
+            .with('bundle exec rubocop -f json')
             .and_return(@rubocop_response)
 
           # Do it
@@ -54,16 +54,16 @@ module Danger
             .and_return(['spec/fixtures/ruby_file.rb'])
           allow(@rubocop.git).to receive(:added_files).and_return([])
           allow(@rubocop).to receive(:`)
-            .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
+            .with('bundle exec rubocop -f json')
             .and_return(@rubocop_response)
 
           @rubocop.lint
 
           formatted_table = <<-EOS
 ### Rubocop violations\n
-| File         | Line | Reason         |
-|--------------|------|----------------|
-| ruby_file.rb | 13   | Don't do that! |
+| File                       | Line | Reason         |
+|----------------------------|------|----------------|
+| spec/fixtures/ruby_file.rb | 13   | Don't do that! |
 EOS
           expect(@rubocop.status_report[:markdowns].first).to eq(formatted_table.chomp)
         end
@@ -73,7 +73,7 @@ EOS
             .and_return(['spec/fixtures/ruby_file.rb'])
           allow(@rubocop.git).to receive(:added_files).and_return([])
           allow(@rubocop).to receive(:`)
-            .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
+            .with('bundle exec rubocop -f json')
             .and_return(@rubocop_response)
 
           @rubocop.lint
