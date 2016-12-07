@@ -48,9 +48,7 @@ module Danger
           # Do it
           @rubocop.lint('spec/fixtures/ruby*.rb')
 
-          output = @rubocop.status_report[:markdowns].first
-
-          expect(output).to_not be_empty
+          output = @rubocop.status_report[:markdowns].first.message
 
           # A title
           expect(output).to include('Rubocop violations')
@@ -69,9 +67,8 @@ module Danger
 
           @rubocop.lint
 
-          output = @rubocop.status_report[:markdowns].first
+          output = @rubocop.status_report[:markdowns].first.message
 
-          expect(output).to_not be_empty
           expect(output).to include('Rubocop violations')
           expect(output).to include("spec/fixtures/another_ruby_file.rb | 23   | Don't do that!")
         end
@@ -92,7 +89,7 @@ module Danger
 |----------------------------|------|----------------|
 | spec/fixtures/ruby_file.rb | 13   | Don't do that! |
 EOS
-          expect(@rubocop.status_report[:markdowns].first).to eq(formatted_table.chomp)
+          expect(@rubocop.status_report[:markdowns].first.message).to eq(formatted_table.chomp)
         end
       end
     end
