@@ -40,10 +40,10 @@ module Danger
     private
 
     def rubocop(files_to_lint)
-      rubocop_output = `#{'bundle exec ' if File.exist?('Gemfile')}rubocop -f json`
+      rubocop_output = `#{'bundle exec ' if File.exist?('Gemfile')}rubocop -f json #{files_to_lint.join(' ')}`
 
       JSON.parse(rubocop_output)['files']
-        .select { |f| files_to_lint.include?(f['path']) && f['offenses'].any? }
+        .select { |f| f['offenses'].any? }
     end
 
     def offenses_message(offending_files)
