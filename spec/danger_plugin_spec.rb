@@ -13,9 +13,8 @@ module Danger
       end
 
       describe :lint_files do
-        before do
-          # Set up our stubbed JSON response
-          response = {
+        let(:response_ruby_file) do
+          {
             'files' => [
               {
                 'path' => 'spec/fixtures/ruby_file.rb',
@@ -25,7 +24,14 @@ module Danger
                     'location' => { 'line' => 13 }
                   }
                 ]
-              },
+              }
+            ]
+          }.to_json
+        end
+
+        let(:response_another_ruby_file) do
+          {
+            'files' => [
               {
                 'path' => 'spec/fixtures/another_ruby_file.rb',
                 'offenses' => [
@@ -36,14 +42,13 @@ module Danger
                 ]
               }
             ]
-          }
-          @rubocop_response = response.to_json
+          }.to_json
         end
 
         it 'handles a rubocop report for specified files' do
           allow(@rubocop).to receive(:`)
-            .with('bundle exec rubocop -f json')
-            .and_return(@rubocop_response)
+            .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
+            .and_return(response_ruby_file)
 
           # Do it
           @rubocop.lint('spec/fixtures/ruby*.rb')
@@ -62,8 +67,8 @@ module Danger
             .and_return(["spec/fixtures/another_ruby_file.rb"])
 
           allow(@rubocop).to receive(:`)
-            .with('bundle exec rubocop -f json')
-            .and_return(@rubocop_response)
+            .with('bundle exec rubocop -f json spec/fixtures/another_ruby_file.rb')
+            .and_return(response_another_ruby_file)
 
           @rubocop.lint
 
@@ -78,8 +83,8 @@ module Danger
             .and_return(['spec/fixtures/ruby_file.rb'])
           allow(@rubocop.git).to receive(:added_files).and_return([])
           allow(@rubocop).to receive(:`)
-            .with('bundle exec rubocop -f json')
-            .and_return(@rubocop_response)
+            .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
+            .and_return(response_ruby_file)
 
           @rubocop.lint
 
