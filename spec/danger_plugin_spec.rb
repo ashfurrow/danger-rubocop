@@ -96,6 +96,21 @@ module Danger
 EOS
           expect(@rubocop.status_report[:markdowns].first.message).to eq(formatted_table.chomp)
         end
+
+        describe 'a filename with special characters' do
+          it 'is shell escaped' do
+            modified_files = [
+              'spec/fixtures/shellescape/ruby_file_with_parens_(abc).rb',
+              'spec/fixtures/shellescape/ruby_file with spaces.rb',
+              'spec/fixtures/shellescape/ruby_file\'with_quotes.rb'
+            ]
+            allow(@rubocop.git).to receive(:modified_files)
+              .and_return(modified_files)
+            allow(@rubocop.git).to receive(:added_files).and_return([])
+
+            expect { @rubocop.lint }.not_to raise_error
+          end
+        end
       end
     end
   end

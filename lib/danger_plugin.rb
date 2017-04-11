@@ -1,3 +1,5 @@
+require 'shellwords'
+
 module Danger
   # Run Ruby files through Rubocop.
   # Results are passed out as a table in markdown.
@@ -31,7 +33,7 @@ module Danger
 
       markdown offenses_message(offending_files)
     end
-    
+
     def offending_files(files = nil)
       files_to_lint = fetch_files_to_lint(files)
       rubocop(files_to_lint)
@@ -40,7 +42,7 @@ module Danger
     private
 
     def rubocop(files_to_lint)
-      rubocop_output = `#{'bundle exec ' if File.exist?('Gemfile')}rubocop -f json #{files_to_lint.join(' ')}`
+      rubocop_output = `#{'bundle exec ' if File.exist?('Gemfile')}rubocop -f json #{files_to_lint}`
 
       JSON.parse(rubocop_output)['files']
         .select { |f| f['offenses'].any? }
@@ -61,9 +63,12 @@ module Danger
       ).to_s
       message + table.split("\n")[1..-2].join("\n")
     end
-    
+
     def fetch_files_to_lint(files = nil)
-      @files_to_lint ||= (files ? Dir.glob(files) : (git.modified_files + git.added_files))
+      @files_to_lint ||= begin
+        to_lint = (files ? Dir.glob(files) : (git.modified_files + git.added_files))
+        Shellwords.join(to_lint)
+      end
     end
   end
 end
