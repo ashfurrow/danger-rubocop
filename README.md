@@ -19,15 +19,16 @@ Results are passed out as a table in markdown.
 
 
 > Specifying custom config file.
-> ```ruby
+```ruby
 rubocop.lint
-> ```
+```
 
 > Lint specific files in a folder, when they change
-> ```ruby
-public_files = (modified_files + added_files).select { |path| path.include?("/public/") }
+
+```ruby
+public_files = (git.modified_files + git.added_files).select { |path| path.include?("/public/") }
 rubocop.lint public_files
-> ```
+```
 
 
 #### Methods
