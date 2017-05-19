@@ -26,23 +26,26 @@ module Danger
     #          from the diff will be used.
     # @return  [void]
     #
-    def lint(files = nil)
+    def lint(config = nil)
+      config = config.is_a?(Hash) ? config : { files: config }
+      files = config[:files]
+      force_exclusion = config[:force_exclusion] || false
+
       files_to_lint = fetch_files_to_lint(files)
+      files_to_report = rubocop(files_to_lint, force_exclusion)
 
-      return if offending_files.empty?
+      return if files_to_report.empty?
 
-      markdown offenses_message(offending_files)
-    end
-
-    def offending_files(files = nil)
-      files_to_lint = fetch_files_to_lint(files)
-      rubocop(files_to_lint)
+      markdown offenses_message(files_to_report)
     end
 
     private
 
-    def rubocop(files_to_lint)
-      rubocop_output = `#{'bundle exec ' if File.exist?('Gemfile')}rubocop -f json #{files_to_lint}`
+    def rubocop(files_to_lint, force_exclusion)
+      base_command = 'rubocop -f json'
+      base_command << ' --force-exclusion' if force_exclusion
+
+      rubocop_output = `#{'bundle exec ' if File.exist?('Gemfile')}#{base_command} #{files_to_lint}`
 
       JSON.parse(rubocop_output)['files']
         .select { |f| f['offenses'].any? }
@@ -65,10 +68,8 @@ module Danger
     end
 
     def fetch_files_to_lint(files = nil)
-      @files_to_lint ||= begin
-        to_lint = (files ? Dir.glob(files) : (git.modified_files + git.added_files))
-        Shellwords.join(to_lint)
-      end
+      to_lint = (files ? Dir.glob(files) : (git.modified_files + git.added_files))
+      Shellwords.join(to_lint)
     end
   end
 end

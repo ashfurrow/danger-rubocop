@@ -51,7 +51,39 @@ module Danger
             .and_return(response_ruby_file)
 
           # Do it
+          @rubocop.lint(files: 'spec/fixtures/ruby*.rb')
+
+          output = @rubocop.status_report[:markdowns].first.message
+
+          # A title
+          expect(output).to include('Rubocop violations')
+          # A warning
+          expect(output).to include("spec/fixtures/ruby_file.rb | 13   | Don't do that!")
+        end
+
+        it 'handles a rubocop report for specified files (legacy)' do
+          allow(@rubocop).to receive(:`)
+            .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
+            .and_return(response_ruby_file)
+
+          # Do it
           @rubocop.lint('spec/fixtures/ruby*.rb')
+
+          output = @rubocop.status_report[:markdowns].first.message
+
+          # A title
+          expect(output).to include('Rubocop violations')
+          # A warning
+          expect(output).to include("spec/fixtures/ruby_file.rb | 13   | Don't do that!")
+        end
+
+        it 'appends --force-exclusion argument when force_exclusion is set' do
+          allow(@rubocop).to receive(:`)
+            .with('bundle exec rubocop -f json --force-exclusion spec/fixtures/ruby_file.rb')
+            .and_return(response_ruby_file)
+
+          # Do it
+          @rubocop.lint(files: 'spec/fixtures/ruby*.rb', force_exclusion: true)
 
           output = @rubocop.status_report[:markdowns].first.message
 
