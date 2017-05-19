@@ -28,15 +28,11 @@ module Danger
     #
     def lint(files = nil)
       files_to_lint = fetch_files_to_lint(files)
+      files_to_report = rubocop(files_to_lint)
 
-      return if offending_files.empty?
+      return if files_to_report.empty?
 
-      markdown offenses_message(offending_files)
-    end
-
-    def offending_files(files = nil)
-      files_to_lint = fetch_files_to_lint(files)
-      rubocop(files_to_lint)
+      markdown offenses_message(files_to_report)
     end
 
     private
@@ -65,10 +61,8 @@ module Danger
     end
 
     def fetch_files_to_lint(files = nil)
-      @files_to_lint ||= begin
-        to_lint = (files ? Dir.glob(files) : (git.modified_files + git.added_files))
-        Shellwords.join(to_lint)
-      end
+      to_lint = (files ? Dir.glob(files) : (git.modified_files + git.added_files))
+      Shellwords.join(to_lint)
     end
   end
 end
