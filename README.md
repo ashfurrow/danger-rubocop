@@ -33,12 +33,17 @@ rubocop.lint public_files
 
 #### Methods
 
+`lint(config: Hash)`
 
-`lint(files: String)`
+Runs Ruby files through Rubocop. Generates a `markdown` list of warnings.
 
- Runs Ruby files through Rubocop. Generates a `markdown` list of warnings.
+This method accepts configuration hash.
+The following keys are supported:
 
+* `files`: array of file names or glob patterns to determine files to lint
+* `force_exclusion`: pass `true` to pass `--force-exclusion` argument to Rubocop.
 
+Passing `files` as only argument is also supported for backward compatibility.
 
 ## License
 
