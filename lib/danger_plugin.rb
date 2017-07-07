@@ -72,7 +72,7 @@ module Danger
     def report_failures(offending_files)
       offending_files.each do |file|
         file['offenses'].each do |offense|
-          fail "#{file['path']} | #{offense['location']['line'] | offense['message']}"
+          fail "#{file['path']} | #{offense['location']['line']} | #{offense['message']}"
         end
       end
     end
