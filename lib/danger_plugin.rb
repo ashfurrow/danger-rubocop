@@ -49,6 +49,8 @@ module Danger
 
       rubocop_output = `#{'bundle exec ' if File.exist?('Gemfile')}#{base_command} #{files_to_lint}`
 
+      return [] unless rubocop_output.present?
+
       JSON.parse(rubocop_output)['files']
         .select { |f| f['offenses'].any? }
     end
