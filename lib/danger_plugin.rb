@@ -30,15 +30,22 @@ module Danger
       config = config.is_a?(Hash) ? config : { files: config }
       files = config[:files]
       force_exclusion = config[:force_exclusion] || false
+
       report_danger = config[:report_danger] || false
+      inline_comment = config[:inline_comment] || false
 
       files_to_lint = fetch_files_to_lint(files)
       files_to_report = rubocop(files_to_lint, force_exclusion)
 
       return if files_to_report.empty?
-
       return report_failures files_to_report if report_danger
-      markdown offenses_message(files_to_report)
+
+      if inline_comment
+        warn_each_line(files_to_report)
+      else
+        markdown offenses_message(files_to_report)
+      end
+
     end
 
     private
@@ -75,6 +82,14 @@ module Danger
       offending_files.each do |file|
         file['offenses'].each do |offense|
           fail "#{file['path']} | #{offense['location']['line']} | #{offense['message']}"
+        end
+      end
+    end
+
+    def warn_each_line(offending_files)
+      offending_files.flat_map do |file|
+        file['offenses'].map do |offense|
+          warn(offense['message'], file: file['path'], line: offense['location']['line'])
         end
       end
     end
