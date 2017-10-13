@@ -30,18 +30,22 @@ module Danger
       config = config.is_a?(Hash) ? config : { files: config }
       files = config[:files]
       force_exclusion = config[:force_exclusion] || false
+
+      report_danger = config[:report_danger] || false
       inline_comment = config[:inline_comment] || false
 
       files_to_lint = fetch_files_to_lint(files)
       files_to_report = rubocop(files_to_lint, force_exclusion)
 
       return if files_to_report.empty?
+      return report_failures files_to_report if report_danger
 
       if inline_comment
         warn_each_line(files_to_report)
       else
         markdown offenses_message(files_to_report)
       end
+
     end
 
     private
@@ -51,6 +55,8 @@ module Danger
       base_command << ' --force-exclusion' if force_exclusion
 
       rubocop_output = `#{'bundle exec ' if File.exist?('Gemfile')}#{base_command} #{files_to_lint}`
+
+      return [] if rubocop_output.empty?
 
       JSON.parse(rubocop_output)['files']
         .select { |f| f['offenses'].any? }
@@ -70,6 +76,14 @@ module Danger
         end
       ).to_s
       message + table.split("\n")[1..-2].join("\n")
+    end
+
+    def report_failures(offending_files)
+      offending_files.each do |file|
+        file['offenses'].each do |offense|
+          fail "#{file['path']} | #{offense['location']['line']} | #{offense['message']}"
+        end
+      end
     end
 
     def warn_each_line(offending_files)
