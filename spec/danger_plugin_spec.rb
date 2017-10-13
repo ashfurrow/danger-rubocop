@@ -127,6 +127,7 @@ module Danger
 | spec/fixtures/ruby_file.rb | 13   | Don't do that! |
 EOS
           expect(@rubocop.status_report[:markdowns].first.message).to eq(formatted_table.chomp)
+          expect(@rubocop).not_to receive(:fail)
         end
 
         it 'is reported as line by line' do
@@ -155,6 +156,21 @@ EOS
             allow(@rubocop.git).to receive(:added_files).and_return([])
 
             expect { @rubocop.lint }.not_to raise_error
+          end
+        end
+
+        describe 'report to danger' do
+          let(:fail_msg) { %{spec/fixtures/ruby_file.rb | 13 | Don't do that!} }
+          it 'reports to danger' do
+            allow(@rubocop.git).to receive(:modified_files)
+              .and_return(['spec/fixtures/ruby_file.rb'])
+            allow(@rubocop.git).to receive(:added_files).and_return([])
+            allow(@rubocop).to receive(:`)
+              .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
+              .and_return(response_ruby_file)
+
+            expect(@rubocop).to receive(:fail).with(fail_msg)
+            @rubocop.lint(report_danger: true)
           end
         end
       end
