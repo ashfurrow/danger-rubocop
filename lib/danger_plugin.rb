@@ -51,12 +51,12 @@ module Danger
 
       message = "### Rubocop violations\n\n"
       table = Terminal::Table.new(
-        headings: %w(Whitelist File Line Reason),
+        headings: %w(Required File Line Reason),
         style: { border_i: '|' },
         rows: offending_files.flat_map do |file|
           file['offenses'].map do |offense|
             [
-              in_whitelist(file['path'], whitelist),
+              required?(file['path'], whitelist),
               file['path'],
               offense['location']['line'],
               offense['message']
@@ -67,7 +67,7 @@ module Danger
       message + table.split("\n")[1..-2].join("\n")
     end
 
-    def in_whitelist(file, whitelist)
+    def required?(file, whitelist)
       whitelist.include?(file) ? "\u{2757}" : ""
     end
 
