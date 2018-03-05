@@ -68,7 +68,7 @@ module Danger
     end
 
     def in_whitelist(file, whitelist)
-      whitelist.include?(file) ? ":exclamation:" : ""
+      whitelist.include?(file) ? "\u{2757}" : ""
     end
 
     def fetch_files_to_lint(files = nil)
