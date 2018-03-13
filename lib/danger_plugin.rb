@@ -24,7 +24,7 @@ module Danger
     #          from the diff will be used.
     # @return  [void]
     #
-    def lint(files = nil, whitelist)
+    def lint(files = nil, whitelist = [])
       files_to_lint = fetch_files_to_lint(files)
 
       return if offending_files.empty?
@@ -68,7 +68,7 @@ module Danger
     end
 
     def required?(file, whitelist)
-      whitelist.include?(file) ? "\u{2757}" : ""
+      whitelist.include?(file) ? 'x' : ''
     end
 
     def fetch_files_to_lint(files = nil)
