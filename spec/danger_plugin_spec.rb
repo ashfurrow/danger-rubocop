@@ -90,9 +90,9 @@ module Danger
 
           formatted_table = <<-EOS
 ### Rubocop violations\n
-| File                       | Line | Reason         |
-|----------------------------|------|----------------|
-| spec/fixtures/ruby_file.rb | 13   | Don't do that! |
+| Required | File                       | Line | Reason         |
+|----------|----------------------------|------|----------------|
+|          | spec/fixtures/ruby_file.rb | 13   | Don't do that! |
 EOS
           expect(@rubocop.status_report[:markdowns].first.message).to eq(formatted_table.chomp)
         end

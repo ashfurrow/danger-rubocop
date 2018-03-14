@@ -24,12 +24,12 @@ module Danger
     #          from the diff will be used.
     # @return  [void]
     #
-    def lint(files = nil)
+    def lint(files = nil, whitelist = [])
       files_to_lint = fetch_files_to_lint(files)
 
       return if offending_files.empty?
 
-      markdown offenses_message(offending_files)
+      markdown offenses_message(offending_files, whitelist)
     end
 
     def offending_files(files = nil)
@@ -46,22 +46,31 @@ module Danger
         .select { |f| f['offenses'].any? }
     end
 
-    def offenses_message(offending_files)
+    def offenses_message(offending_files, whitelist)
       require 'terminal-table'
 
       message = "### Rubocop violations\n\n"
       table = Terminal::Table.new(
-        headings: %w(File Line Reason),
+        headings: %w(Required File Line Reason),
         style: { border_i: '|' },
         rows: offending_files.flat_map do |file|
           file['offenses'].map do |offense|
-            [file['path'], offense['location']['line'], offense['message']]
+            [
+              required?(file['path'], whitelist),
+              file['path'],
+              offense['location']['line'],
+              offense['message']
+            ]
           end
         end
       ).to_s
       message + table.split("\n")[1..-2].join("\n")
     end
-    
+
+    def required?(file, whitelist)
+      whitelist.include?(file) ? 'x' : ''
+    end
+
     def fetch_files_to_lint(files = nil)
       @files_to_lint ||= (files ? Dir.glob(files) : (git.modified_files + git.added_files))
     end
