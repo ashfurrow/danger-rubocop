@@ -1,5 +1,3 @@
-require 'pry'
-
 module Danger
   # Run Ruby files through Rubocop.
   # Results are passed out as a table in markdown.
