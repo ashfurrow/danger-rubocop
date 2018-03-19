@@ -40,7 +40,12 @@ module Danger
     private
 
     def rubocop(files_to_lint)
-      rubocop_output = `#{'bundle exec ' if need_bundler?}rubocop -f json #{files_to_lint.join(' ')}`
+      rubocop_output =
+        if ENV['CIRCLE_BRANCH'] =~ /chore\/fix-rubocop/
+          `#{'bundle exec ' if need_bundler?}rubocop -f json --config .rubocop-except.yml #{files_to_lint.join(' ')}`
+        else
+          `#{'bundle exec ' if need_bundler?}rubocop -f json #{files_to_lint.join(' ')}`
+        end
 
       JSON.parse(rubocop_output)['files']
         .select { |f| f['offenses'].any? }
