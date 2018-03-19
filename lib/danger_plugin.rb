@@ -44,7 +44,7 @@ module Danger
     def rubocop(files_to_lint, cops_to_ignore = [])
       rubocop_output = `#{'bundle exec ' if need_bundler?}rubocop -f json #{files_to_lint.join(' ')}`
 
-      JSON.parse(rubocop_output)['files'].select { |f| f['offenses'].any? }.map do |file|
+      JSON.parse(rubocop_output)['files'].select { |file| file['offenses'].any? }.map do |file|
         file['offenses'].reject! { |offense| cops_to_ignore.include?(offense['cop_name']) }
         file
       end
