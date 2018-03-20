@@ -44,10 +44,12 @@ module Danger
     def rubocop(files_to_lint, cops_to_ignore = [])
       rubocop_output = `#{'bundle exec ' if need_bundler?}rubocop -f json #{files_to_lint.join(' ')}`
 
-      JSON.parse(rubocop_output)['files'].select { |file| file['offenses'].any? }.map do |file|
-        file['offenses'].reject! { |offense| cops_to_ignore.include?(offense['cop_name']) }
-        file
-      end
+      JSON.parse(rubocop_output)['files'].map do |file|
+        file['offenses'].reject! do |offense|
+          cops_to_ignore.include?(offense['cop_name'])
+        end
+        file unless file['offenses'].empty?
+      end.compact
     end
 
     def offenses_message(offending_files, whitelist)
