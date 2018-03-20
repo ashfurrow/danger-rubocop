@@ -24,26 +24,32 @@ module Danger
     #          from the diff will be used.
     # @return  [void]
     #
-    def lint(files = nil, whitelist = [])
+    def lint(files = nil, whitelist = [], cops_to_ignore = [])
       files_to_lint = fetch_files_to_lint(files)
 
-      return if offending_files.empty?
+      rubocop_offending_files = offending_files(files, cops_to_ignore)
 
-      markdown offenses_message(offending_files, whitelist)
+      return unless rubocop_offending_files.any?
+
+      markdown offenses_message(rubocop_offending_files, whitelist)
     end
 
-    def offending_files(files = nil)
+    def offending_files(files = nil, cops_to_ignore = [])
       files_to_lint = fetch_files_to_lint(files)
-      rubocop(files_to_lint)
+      rubocop(files_to_lint, cops_to_ignore)
     end
 
     private
 
-    def rubocop(files_to_lint)
+    def rubocop(files_to_lint, cops_to_ignore = [])
       rubocop_output = `#{'bundle exec ' if need_bundler?}rubocop -f json #{files_to_lint.join(' ')}`
 
-      JSON.parse(rubocop_output)['files']
-        .select { |f| f['offenses'].any? }
+      JSON.parse(rubocop_output)['files'].map do |file|
+        file['offenses'].reject! do |offense|
+          cops_to_ignore.include?(offense['cop_name'])
+        end
+        file unless file['offenses'].empty?
+      end.compact
     end
 
     def offenses_message(offending_files, whitelist)
