@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    danger-rubocop (0.4.1)
+    danger-rubocop (0.4.2)
       danger
       rubocop
 
