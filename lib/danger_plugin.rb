@@ -39,7 +39,7 @@ module Danger
         rows: offending_files.flat_map do |file|
           file['offenses'].map do |offense|
             [
-              required?(file['path']) ? 'x' : '',
+              required?(file['path']) ? ':x:' : '',
               file['path'],
               offense['location']['line'],
               offense['message']
