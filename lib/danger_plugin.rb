@@ -1,7 +1,8 @@
 module Danger
   class DangerRubocop < Plugin
-    def lint(files = nil, whitelist = [], cops_to_ignore = [])
+    def lint(files = nil, whitelist = [], cops_to_ignore = [], custom_cops = [])
       @whitelist = whitelist
+      @custom_cops = custom_cops
       rubocop_offending_files = offending_files(files, cops_to_ignore)
       return unless rubocop_offending_files.any?
       markdown offenses_message(rubocop_offending_files)
@@ -23,10 +24,19 @@ module Danger
 
       JSON.parse(rubocop_output)['files'].map do |file|
         file['offenses'].reject! do |offense|
-          cops_to_ignore.include?(offense['cop_name'])
+          cops_to_ignore.include?(offense['cop_name']) ||
+            (old_file?(file['path']) && from_custom_cop?(offense['cop_name']))
         end
         file unless file['offenses'].empty?
       end.compact
+    end
+
+    def old_file?(file_path)
+      !git.added_files.include?(file_path)
+    end
+
+    def from_custom_cop?(cop_name)
+      @custom_cops.include?(cop_name)
     end
 
     def offenses_message(offending_files)
