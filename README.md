@@ -42,11 +42,11 @@ The following keys are supported:
 
 * `files`: array of file names or glob patterns to determine files to lint
 * `force_exclusion`: pass `true` to pass `--force-exclusion` argument to Rubocop.
-* `inline_comment`: pass `true` to comment inline of the diffs.
-* `report_danger`: pass true to report errors to Danger, and break CI.
-  
   (this option will instruct rubocop to ignore the files that your rubocop config ignores,
   despite the plugin providing the list of files explicitely)
+* `inline_comment`: pass `true` to comment inline of the diffs.
+* `report_danger`: pass true to report errors to Danger, and break CI.
+
 
 Passing `files` as only argument is also supported for backward compatibility.
 
