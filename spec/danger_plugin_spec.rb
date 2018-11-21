@@ -130,18 +130,38 @@ EOS
           expect(@rubocop).not_to receive(:fail)
         end
 
-        it 'is reported as line by line' do
-          allow(@rubocop.git).to receive(:modified_files)
-            .and_return(['spec/fixtures/ruby_file.rb'])
-          allow(@rubocop.git).to receive(:added_files).and_return([])
-          allow(@rubocop).to receive(:`)
-            .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
-            .and_return(response_ruby_file)
+        context 'with inline_comment option' do
+          context 'without fail_on_inline_comment option' do
+            it 'reports violations as line by line warnings' do
+              allow(@rubocop.git).to receive(:modified_files)
+                .and_return(['spec/fixtures/ruby_file.rb'])
+              allow(@rubocop.git).to receive(:added_files).and_return([])
+              allow(@rubocop).to receive(:`)
+                .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
+                .and_return(response_ruby_file)
 
-          @rubocop.lint(inline_comment: true)
+              @rubocop.lint(inline_comment: true)
 
-          expect(@rubocop.violation_report[:warnings].first.to_s)
-            .to eq("Violation Don't do that! { sticky: false, file: spec/fixtures/ruby_file.rb, line: 13 }")
+              expect(@rubocop.violation_report[:warnings].first.to_s)
+                .to eq("Violation Don't do that! { sticky: false, file: spec/fixtures/ruby_file.rb, line: 13 }")
+            end
+          end
+
+          context 'with fail_on_inline_comment option' do
+            it 'reports violations as line by line failures' do
+              allow(@rubocop.git).to receive(:modified_files)
+                .and_return(['spec/fixtures/ruby_file.rb'])
+              allow(@rubocop.git).to receive(:added_files).and_return([])
+              allow(@rubocop).to receive(:`)
+                .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
+                .and_return(response_ruby_file)
+
+              @rubocop.lint(fail_on_inline_comment: true, inline_comment: true)
+
+              expect(@rubocop.violation_report[:errors].first.to_s)
+                .to eq("Violation Don't do that! { sticky: false, file: spec/fixtures/ruby_file.rb, line: 13 }")
+            end
+          end
         end
 
         describe 'a filename with special characters' do
