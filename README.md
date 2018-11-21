@@ -45,6 +45,7 @@ The following keys are supported:
   (this option will instruct rubocop to ignore the files that your rubocop config ignores,
   despite the plugin providing the list of files explicitely)
 * `inline_comment`: pass `true` to comment inline of the diffs.
+* `fail_on_inline_comment`: pass `true` to use `fail` instead of `warn` on inline comment.
 * `report_danger`: pass true to report errors to Danger, and break CI.
 
 

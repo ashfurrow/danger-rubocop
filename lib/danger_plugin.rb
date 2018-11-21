@@ -33,6 +33,7 @@ module Danger
 
       report_danger = config[:report_danger] || false
       inline_comment = config[:inline_comment] || false
+      fail_on_inline_comment = config[:fail_on_inline_comment] || false
 
       files_to_lint = fetch_files_to_lint(files)
       files_to_report = rubocop(files_to_lint, force_exclusion)
@@ -41,7 +42,7 @@ module Danger
       return report_failures files_to_report if report_danger
 
       if inline_comment
-        warn_each_line(files_to_report)
+        add_violation_for_each_line(files_to_report, fail_on_inline_comment)
       else
         markdown offenses_message(files_to_report)
       end
@@ -86,10 +87,21 @@ module Danger
       end
     end
 
-    def warn_each_line(offending_files)
+    def add_violation_for_each_line(offending_files, fail_on_inline_comment)
       offending_files.flat_map do |file|
         file['offenses'].map do |offense|
-          warn(offense['message'], file: file['path'], line: offense['location']['line'])
+          arguments = [
+            offense['message'],
+            {
+              file: file['path'],
+              line: offense['location']['line']
+            }
+          ]
+          if fail_on_inline_comment
+            fail(*arguments)
+          else
+            warn(*arguments)
+          end
         end
       end
     end
