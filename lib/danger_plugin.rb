@@ -32,11 +32,12 @@ module Danger
       force_exclusion = config[:force_exclusion] || false
       config_path = config[:config]
       report_danger = config[:report_danger] || false
+      only_report_new_offenses = config[:only_report_new_offenses] || false
       inline_comment = config[:inline_comment] || false
       fail_on_inline_comment = config[:fail_on_inline_comment] || false
 
       files_to_lint = fetch_files_to_lint(files)
-      files_to_report = rubocop(files_to_lint, force_exclusion, config_path: config_path)
+      files_to_report = rubocop(files_to_lint, force_exclusion, only_report_new_offenses, config_path: config_path)
 
       return if files_to_report.empty?
       return report_failures files_to_report if report_danger
@@ -46,22 +47,50 @@ module Danger
       else
         markdown offenses_message(files_to_report)
       end
-
     end
 
     private
 
-    def rubocop(files_to_lint, force_exclusion, config_path: nil)
-      base_command = ["rubocop", "-f", "json"]
-      base_command.concat(["--force-exclusion"]) if force_exclusion
-      base_command.concat(["--config", config_path.shellescape]) unless config_path.nil?
+    def rubocop(files_to_lint, force_exclusion, only_report_new_offenses, config_path: nil)
+      base_command = ['rubocop', '-f', 'json']
+      base_command.concat(['--force-exclusion']) if force_exclusion
+      base_command.concat(['--config', config_path.shellescape]) unless config_path.nil?
 
       rubocop_output = `#{'bundle exec ' if File.exist?('Gemfile')}#{base_command.join(' ')} #{files_to_lint}`
 
       return [] if rubocop_output.empty?
 
-      JSON.parse(rubocop_output)['files']
-        .select { |f| f['offenses'].any? }
+      files = JSON.parse(rubocop_output)['files']
+
+      filter_out_offenses(files) if only_report_new_offenses
+
+      files.select { |f| f['offenses'].any? }
+    end
+
+    def filter_out_offenses(files)
+      files.each do |file|
+        added_lines = added_lines(file['path']).to_set
+        file['offenses'].select! do |offense|
+          added_lines.include?(offense['location']['line'])
+        end
+      end
+    end
+
+    def added_lines(path)
+      git.diff_for_file(path)
+         .patch
+         .split("\n@@")
+         .tap(&:shift)
+         .flat_map do |chunk|
+           first_line, *diff = chunk.split("\n")
+           # Get start from diff.
+           lineno = first_line.match(/\+(\d+),(\d+)/).captures.first.to_i
+           diff.each_with_object([]) do |current_line, added_lines|
+             lineno += 1 unless current_line.start_with?('-')
+             added_lines << lineno if current_line.start_with?('+')
+             added_lines
+           end
+         end
     end
 
     def offenses_message(offending_files)
