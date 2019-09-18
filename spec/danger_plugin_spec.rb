@@ -47,11 +47,11 @@ module Danger
 
         it 'handles a rubocop report for specified files' do
           allow(@rubocop).to receive(:`)
-            .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
+            .with('bundle exec rubocop -f json --config path/to/rubocop.yml spec/fixtures/ruby_file.rb')
             .and_return(response_ruby_file)
 
           # Do it
-          @rubocop.lint(files: 'spec/fixtures/ruby*.rb')
+          @rubocop.lint(files: 'spec/fixtures/ruby*.rb', config: 'path/to/rubocop.yml')
 
           output = @rubocop.status_report[:markdowns].first.message
 

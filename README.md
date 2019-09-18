@@ -47,7 +47,7 @@ The following keys are supported:
 * `inline_comment`: pass `true` to comment inline of the diffs.
 * `fail_on_inline_comment`: pass `true` to use `fail` instead of `warn` on inline comment.
 * `report_danger`: pass true to report errors to Danger, and break CI.
-
+* `config`: path to the `.rubocop.yml` file.
 
 Passing `files` as only argument is also supported for backward compatibility.
 
