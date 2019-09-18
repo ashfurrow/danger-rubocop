@@ -30,13 +30,13 @@ module Danger
       config = config.is_a?(Hash) ? config : { files: config }
       files = config[:files]
       force_exclusion = config[:force_exclusion] || false
-
+      config_path = config[:config]
       report_danger = config[:report_danger] || false
       inline_comment = config[:inline_comment] || false
       fail_on_inline_comment = config[:fail_on_inline_comment] || false
 
       files_to_lint = fetch_files_to_lint(files)
-      files_to_report = rubocop(files_to_lint, force_exclusion)
+      files_to_report = rubocop(files_to_lint, force_exclusion, config_path: config_path)
 
       return if files_to_report.empty?
       return report_failures files_to_report if report_danger
@@ -51,11 +51,12 @@ module Danger
 
     private
 
-    def rubocop(files_to_lint, force_exclusion)
-      base_command = 'rubocop -f json'
-      base_command << ' --force-exclusion' if force_exclusion
+    def rubocop(files_to_lint, force_exclusion, config_path: nil)
+      base_command = ["rubocop", "-f", "json"]
+      base_command.concat(["--force-exclusion"]) if force_exclusion
+      base_command.concat(["--config", config_path.shellescape]) unless config_path.nil?
 
-      rubocop_output = `#{'bundle exec ' if File.exist?('Gemfile')}#{base_command} #{files_to_lint}`
+      rubocop_output = `#{'bundle exec ' if File.exist?('Gemfile')}#{base_command.join(' ')} #{files_to_lint}`
 
       return [] if rubocop_output.empty?
 
