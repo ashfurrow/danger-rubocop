@@ -1,4 +1,4 @@
-require File.expand_path('../spec_helper', __FILE__)
+require File.expand_path('spec_helper', __dir__)
 
 module Danger
   describe DangerRubocop do
@@ -10,6 +10,82 @@ module Danger
       before do
         @dangerfile = testing_dangerfile
         @rubocop = testing_dangerfile.rubocop
+      end
+
+      describe "#filter_out_offenses" do
+        let(:files_within_pr) do
+          [
+            {
+              'path' => 'lib/version.rb',
+              'offenses' => [
+                {
+                  'message' => 'No.',
+                  'location' => { 'line' => 42 }
+                }
+              ]
+            }
+          ]
+        end
+
+        let(:files_outside_pr) do
+          [
+            {
+              'path' => 'lib/version.rb',
+              'offenses' => [
+                {
+                  'message' => 'No.',
+                  'location' => { 'line' => 20 }
+                }
+              ]
+            }
+          ]
+        end
+        subject { @rubocop }
+
+        before do
+          allow(@rubocop.git).to receive(:diff_for_file).with('lib/version.rb') do
+            instance_double('Git::Diff::DiffFile', patch: <<~DIFF)
+            diff --git a/lib/version.rb b/lib/version.rb
+            index 66d3a986..5e8074a8 100644
+            --- a/lib/version.rb
+            +++ b/lib/version.rb
+            @@ -32,4 +40,3 @@
+             line 1
+            -removed
+            -line 2 old version
+            +line 2 with offense
+             line 3
+            DIFF
+          end
+        end
+
+        it 'filters out offenses not in the pr' do
+          p described_class
+          expect(subject.send(:filter_out_offenses, files_outside_pr)).to eq(
+            [
+              {
+                'path' => 'lib/version.rb',
+                'offenses' => []
+              }
+            ]
+          )
+        end
+
+        it 'keeps offenses in the pr' do
+          expect(subject.send(:filter_out_offenses, files_within_pr.dup)).to eq(
+            [
+              {
+                'path' => 'lib/version.rb',
+                'offenses' => [
+                  {
+                    'message' => 'No.',
+                    'location' => { 'line' => 42 }
+                  }
+                ]
+              }
+            ]
+          )
+        end
       end
 
       describe :lint_files do

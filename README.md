@@ -48,6 +48,9 @@ The following keys are supported:
 * `fail_on_inline_comment`: pass `true` to use `fail` instead of `warn` on inline comment.
 * `report_danger`: pass true to report errors to Danger, and break CI.
 * `config`: path to the `.rubocop.yml` file.
+* `only_report_new_offenses`: pass `true` to only report offenses that are in current user's scope.
+   Note that this won't mark offenses for _Metrics/XXXLength_ if you add lines to an already existing scope.
+
 
 Passing `files` as only argument is also supported for backward compatibility.
 
