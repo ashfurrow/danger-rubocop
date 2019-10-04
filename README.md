@@ -30,6 +30,12 @@ public_files = (git.modified_files + git.added_files).select { |path| path.inclu
 rubocop.lint public_files
 ```
 
+> Submit comments only for changed lines
+
+```ruby
+github.dismiss_out_of_range_messages
+rubocop.lint inline_comment: true
+```
 
 #### Methods
 
