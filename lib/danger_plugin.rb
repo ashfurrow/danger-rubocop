@@ -86,8 +86,8 @@ module Danger
            # Get start from diff.
            lineno = first_line.match(/\+(\d+),(\d+)/).captures.first.to_i
            diff.each_with_object([]) do |current_line, added_lines|
-             lineno += 1 unless current_line.start_with?('-')
              added_lines << lineno if current_line.start_with?('+')
+             lineno += 1 unless current_line.start_with?('-')
              added_lines
            end
          end

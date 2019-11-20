@@ -20,7 +20,7 @@ module Danger
               'offenses' => [
                 {
                   'message' => 'No.',
-                  'location' => { 'line' => 42 }
+                  'location' => { 'line' => 41 }
                 }
               ]
             }
@@ -79,7 +79,7 @@ module Danger
                 'offenses' => [
                   {
                     'message' => 'No.',
-                    'location' => { 'line' => 42 }
+                    'location' => { 'line' => 41 }
                   }
                 ]
               }
