@@ -20,7 +20,7 @@ module Danger
               'offenses' => [
                 {
                   'message' => 'No.',
-                  'location' => { 'line' => 42 }
+                  'location' => { 'line' => 41 }
                 }
               ]
             }
@@ -79,12 +79,33 @@ module Danger
                 'offenses' => [
                   {
                     'message' => 'No.',
-                    'location' => { 'line' => 42 }
+                    'location' => { 'line' => 41 }
                   }
                 ]
               }
             ]
           )
+        end
+      end
+
+      describe :added_lines do
+        before do
+          allow(@rubocop.git).to receive(:diff_for_file).with('SAMPLE') do
+            instance_double('Git::Diff::DiffFile', patch: <<~DIFF)
+            diff --git a/SAMPLE b/SAMPLE
+            new file mode 100644
+            index 0000000..7bba8c8
+            --- /dev/null
+            +++ b/SAMPLE
+            @@ -0,0 +1,2 @@
+            +line 1
+            +line 2
+            DIFF
+          end
+        end
+
+        it 'handles git diff' do
+          expect(@rubocop.send(:added_lines, 'SAMPLE')).to eq([1, 2])
         end
       end
 
