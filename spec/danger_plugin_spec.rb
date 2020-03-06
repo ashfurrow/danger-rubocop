@@ -117,6 +117,7 @@ module Danger
                 'path' => 'spec/fixtures/ruby_file.rb',
                 'offenses' => [
                   {
+                    'cop_name' => 'Syntax/WhetherYouShouldDoThat',
                     'message' => "Don't do that!",
                     'location' => { 'line' => 13 }
                   }
@@ -133,6 +134,7 @@ module Danger
                 'path' => 'spec/fixtures/another_ruby_file.rb',
                 'offenses' => [
                   {
+                    'cop_name' => 'Syntax/WhetherYouShouldDoThat',
                     'message' => "Don't do that!",
                     'location' => { 'line' => 23 }
                   }
@@ -156,6 +158,22 @@ module Danger
           expect(output).to include('Rubocop violations')
           # A warning
           expect(output).to include("spec/fixtures/ruby_file.rb | 13   | Don't do that!")
+        end
+
+        it 'includes cop names when include_cop_names is set' do
+          allow(@rubocop).to receive(:`)
+            .with('bundle exec rubocop -f json --config path/to/rubocop.yml spec/fixtures/ruby_file.rb')
+            .and_return(response_ruby_file)
+
+          # Do it
+          @rubocop.lint(files: 'spec/fixtures/ruby*.rb', config: 'path/to/rubocop.yml', include_cop_names:  true)
+
+          output = @rubocop.status_report[:markdowns].first.message
+
+          # A title
+          expect(output).to include('Rubocop violations')
+          # A warning
+          expect(output).to include("spec/fixtures/ruby_file.rb | 13   | Syntax/WhetherYouShouldDoThat: Don't do that!")
         end
 
         it 'handles a rubocop report for specified files (legacy)' do

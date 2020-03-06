@@ -35,6 +35,7 @@ module Danger
       only_report_new_offenses = config[:only_report_new_offenses] || false
       inline_comment = config[:inline_comment] || false
       fail_on_inline_comment = config[:fail_on_inline_comment] || false
+      include_cop_names = config[:include_cop_names] || false
 
       files_to_lint = fetch_files_to_lint(files)
       files_to_report = rubocop(files_to_lint, force_exclusion, only_report_new_offenses, config_path: config_path)
@@ -43,9 +44,9 @@ module Danger
       return report_failures files_to_report if report_danger
 
       if inline_comment
-        add_violation_for_each_line(files_to_report, fail_on_inline_comment)
+        add_violation_for_each_line(files_to_report, fail_on_inline_comment, include_cop_names: include_cop_names)
       else
-        markdown offenses_message(files_to_report)
+        markdown offenses_message(files_to_report, include_cop_names: include_cop_names)
       end
     end
 
@@ -93,7 +94,7 @@ module Danger
          end
     end
 
-    def offenses_message(offending_files)
+    def offenses_message(offending_files, include_cop_names: false)
       require 'terminal-table'
 
       message = "### Rubocop violations\n\n"
@@ -102,7 +103,9 @@ module Danger
         style: { border_i: '|' },
         rows: offending_files.flat_map do |file|
           file['offenses'].map do |offense|
-            [file['path'], offense['location']['line'], offense['message']]
+            offense_message = offense['message']
+            offense_message = offense['cop_name'] + ': ' + offense_message if include_cop_names
+            [file['path'], offense['location']['line'], offense_message]
           end
         end
       ).to_s
@@ -117,11 +120,13 @@ module Danger
       end
     end
 
-    def add_violation_for_each_line(offending_files, fail_on_inline_comment)
+    def add_violation_for_each_line(offending_files, fail_on_inline_comment, include_cop_names: false)
       offending_files.flat_map do |file|
         file['offenses'].map do |offense|
+          offense_message = offense['message']
+          offense_message = offense['cop_name'] + ': ' + offense_message if include_cop_names
           arguments = [
-            offense['message'],
+            offense_message,
             {
               file: file['path'],
               line: offense['location']['line']

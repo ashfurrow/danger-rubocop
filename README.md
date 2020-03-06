@@ -43,7 +43,7 @@ rubocop.lint inline_comment: true
 
 Runs Ruby files through Rubocop. Generates a `markdown` list of warnings.
 
-This method accepts configuration hash.
+This method accepts a configuration hash.
 The following keys are supported:
 
 * `files`: array of file names or glob patterns to determine files to lint
@@ -56,6 +56,7 @@ The following keys are supported:
 * `config`: path to the `.rubocop.yml` file.
 * `only_report_new_offenses`: pass `true` to only report offenses that are in current user's scope.
    Note that this won't mark offenses for _Metrics/XXXLength_ if you add lines to an already existing scope.
+* `include_cop_names`: Prepends cop names to the output messages. Example: "Layout/EmptyLinesAroundBlockBody: Extra empty line detected at block body end."
 
 
 Passing `files` as only argument is also supported for backward compatibility.
