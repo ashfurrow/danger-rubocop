@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
 
   # General ruby development
   spec.add_development_dependency 'bundler', '~> 1.3'
-  spec.add_development_dependency 'rake', '~> 10.0'
+  spec.add_development_dependency 'rake', '~> 13.0'
 
   # For validating the plugin lints
   spec.add_development_dependency 'yard'
