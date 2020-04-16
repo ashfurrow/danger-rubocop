@@ -258,7 +258,7 @@ EOS
               @rubocop.lint(inline_comment: true)
 
               expect(@rubocop.violation_report[:warnings].first.to_s)
-                .to eq("Violation Don't do that! { sticky: false, file: spec/fixtures/ruby_file.rb, line: 13 }")
+                .to eq("Violation Don't do that! { sticky: false, file: spec/fixtures/ruby_file.rb, line: 13, type: warning }")
             end
           end
 
@@ -274,7 +274,7 @@ EOS
               @rubocop.lint(fail_on_inline_comment: true, inline_comment: true)
 
               expect(@rubocop.violation_report[:errors].first.to_s)
-                .to eq("Violation Don't do that! { sticky: false, file: spec/fixtures/ruby_file.rb, line: 13 }")
+                .to eq("Violation Don't do that! { sticky: false, file: spec/fixtures/ruby_file.rb, line: 13, type: error }")
             end
           end
         end
