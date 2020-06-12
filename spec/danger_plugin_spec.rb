@@ -146,7 +146,7 @@ module Danger
 
         it 'handles a rubocop report for specified files' do
           allow(@rubocop).to receive(:`)
-            .with('bundle exec rubocop -f json --config path/to/rubocop.yml spec/fixtures/ruby_file.rb')
+            .with('bundle exec rubocop -f json --only-recognized-file-types --config path/to/rubocop.yml spec/fixtures/ruby_file.rb')
             .and_return(response_ruby_file)
 
           # Do it
@@ -162,7 +162,7 @@ module Danger
 
         it 'includes cop names when include_cop_names is set' do
           allow(@rubocop).to receive(:`)
-            .with('bundle exec rubocop -f json --config path/to/rubocop.yml spec/fixtures/ruby_file.rb')
+            .with('bundle exec rubocop -f json --only-recognized-file-types --config path/to/rubocop.yml spec/fixtures/ruby_file.rb')
             .and_return(response_ruby_file)
 
           # Do it
@@ -178,7 +178,7 @@ module Danger
 
         it 'handles a rubocop report for specified files (legacy)' do
           allow(@rubocop).to receive(:`)
-            .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
+            .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/ruby_file.rb')
             .and_return(response_ruby_file)
 
           # Do it
@@ -194,7 +194,7 @@ module Danger
 
         it 'appends --force-exclusion argument when force_exclusion is set' do
           allow(@rubocop).to receive(:`)
-            .with('bundle exec rubocop -f json --force-exclusion spec/fixtures/ruby_file.rb')
+            .with('bundle exec rubocop -f json --only-recognized-file-types --force-exclusion spec/fixtures/ruby_file.rb')
             .and_return(response_ruby_file)
 
           # Do it
@@ -214,7 +214,7 @@ module Danger
             .and_return(["spec/fixtures/another_ruby_file.rb"])
 
           allow(@rubocop).to receive(:`)
-            .with('bundle exec rubocop -f json spec/fixtures/another_ruby_file.rb')
+            .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/another_ruby_file.rb')
             .and_return(response_another_ruby_file)
 
           @rubocop.lint
@@ -230,7 +230,7 @@ module Danger
             .and_return(['spec/fixtures/ruby_file.rb'])
           allow(@rubocop.git).to receive(:added_files).and_return([])
           allow(@rubocop).to receive(:`)
-            .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
+            .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/ruby_file.rb')
             .and_return(response_ruby_file)
 
           @rubocop.lint
@@ -252,7 +252,7 @@ EOS
                 .and_return(['spec/fixtures/ruby_file.rb'])
               allow(@rubocop.git).to receive(:added_files).and_return([])
               allow(@rubocop).to receive(:`)
-                .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
+                .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/ruby_file.rb')
                 .and_return(response_ruby_file)
 
               @rubocop.lint(inline_comment: true)
@@ -268,7 +268,7 @@ EOS
                 .and_return(['spec/fixtures/ruby_file.rb'])
               allow(@rubocop.git).to receive(:added_files).and_return([])
               allow(@rubocop).to receive(:`)
-                .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
+                .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/ruby_file.rb')
                 .and_return(response_ruby_file)
 
               @rubocop.lint(fail_on_inline_comment: true, inline_comment: true)
@@ -301,7 +301,7 @@ EOS
               .and_return(['spec/fixtures/ruby_file.rb'])
             allow(@rubocop.git).to receive(:added_files).and_return([])
             allow(@rubocop).to receive(:`)
-              .with('bundle exec rubocop -f json spec/fixtures/ruby_file.rb')
+              .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/ruby_file.rb')
               .and_return(response_ruby_file)
 
             expect(@rubocop).to receive(:fail).with(fail_msg)

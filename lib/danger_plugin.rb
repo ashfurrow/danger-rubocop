@@ -53,7 +53,7 @@ module Danger
     private
 
     def rubocop(files_to_lint, force_exclusion, only_report_new_offenses, config_path: nil)
-      base_command = ['rubocop', '-f', 'json']
+      base_command = ['rubocop', '-f', 'json', '--only-recognized-file-types']
       base_command.concat(['--force-exclusion']) if force_exclusion
       base_command.concat(['--config', config_path.shellescape]) unless config_path.nil?
 
