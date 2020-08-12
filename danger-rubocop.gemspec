@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'danger'
-  spec.add_dependency 'rubocop'
+  spec.add_dependency 'rubocop', '~> 0.83'
 
   # General ruby development
   spec.add_development_dependency 'bundler', '~> 1.3'
