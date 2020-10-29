@@ -46,10 +46,10 @@ Runs Ruby files through Rubocop. Generates a `markdown` list of warnings.
 This method accepts a configuration hash.
 The following keys are supported:
 
-* `files`: array of file names or glob patterns to determine files to lint
+* `files`: array of file names or glob patterns to determine files to lint. If omitted, this will lint only the files changed in the pull request. To lint all files every time, pass an empty string; this is the equivalent of typing `rubocop` without specifying any files, and will follow the rules in your `.rubocop.yml`.
 * `force_exclusion`: pass `true` to pass `--force-exclusion` argument to Rubocop.
   (this option will instruct rubocop to ignore the files that your rubocop config ignores,
-  despite the plugin providing the list of files explicitely)
+  despite the plugin providing the list of files explicitly)
 * `inline_comment`: pass `true` to comment inline of the diffs.
 * `fail_on_inline_comment`: pass `true` to use `fail` instead of `warn` on inline comment.
 * `report_danger`: pass true to report errors to Danger, and break CI.
