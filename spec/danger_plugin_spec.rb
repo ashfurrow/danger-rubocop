@@ -127,6 +127,16 @@ module Danger
             expect(@rubocop.send(:added_lines, 'SAMPLE')).to eq([1])
           end
         end
+
+        context 'no such file' do
+          before do
+            allow(@rubocop.git).to receive(:diff_for_file).with('SAMPLE').and_return(nil)
+          end
+
+          it 'return empty array' do
+            expect(@rubocop.send(:added_lines, 'SAMPLE')).to eq([])
+          end
+        end
       end
 
       describe :lint_files do

@@ -78,7 +78,10 @@ module Danger
     end
 
     def added_lines(path)
-      git.diff_for_file(path)
+      diff_for_file = git.diff_for_file(path)
+      return [] if diff_for_file.nil?
+
+      diff_for_file
          .patch
          .split("\n@@")
          .tap(&:shift)
