@@ -100,7 +100,7 @@ GEM
       ffi (>= 0.5.0)
     rchardet (1.8.0)
     regexp_parser (2.0.0)
-    rexml (3.2.4)
+    rexml (3.2.5)
     rspec (3.4.0)
       rspec-core (~> 3.4.0)
       rspec-expectations (~> 3.4.0)
