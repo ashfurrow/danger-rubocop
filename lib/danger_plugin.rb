@@ -145,7 +145,13 @@ module Danger
     end
 
     def fetch_files_to_lint(files = nil)
-      to_lint = (files ? Dir.glob(files) : (git.modified_files + git.added_files))
+      to_lint = if files.nil?
+        # when files are renamed, git.modified_files contains the old name not the new one, so we need to do the convertion
+        renaming_map = (git.renamed_files || []).map { |e| [e[:before], e[:after]] }.to_h
+        (git.modified_files.map { |f| renaming_map[f] || f }) + git.added_files
+      else
+        Dir.glob(files)
+      end
       Shellwords.join(to_lint)
     end
   end
