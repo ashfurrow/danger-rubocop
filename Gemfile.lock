@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    danger-rubocop (0.9.3)
+    danger-rubocop (0.9.4)
       danger
       rubocop (~> 1.0)
 
@@ -134,10 +134,9 @@ GEM
       addressable (>= 2.3.5)
       faraday (> 0.8, < 2.0)
     shellany (0.0.1)
-    terminal-table (3.0.0)
-      unicode-display_width (~> 1.1, >= 1.1.1)
+    terminal-table (1.6.0)
     thor (1.1.0)
-    unicode-display_width (1.7.0)
+    unicode-display_width (2.0.0)
     yard (0.9.26)
 
 PLATFORMS
