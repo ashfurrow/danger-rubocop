@@ -241,10 +241,12 @@ module Danger
         it 'handles a rubocop report for files changed in the PR' do
           allow(@rubocop.git).to receive(:added_files).and_return([])
           allow(@rubocop.git).to receive(:modified_files)
-            .and_return(["spec/fixtures/another_ruby_file.rb"])
+            .and_return(["spec/fixtures/old_file_name.rb", "spec/fixtures/another_ruby_file.rb"])
+          allow(@rubocop.git).to receive(:renamed_files)
+            .and_return([{before: "spec/fixtures/old_file_name.rb", after: "spec/fixtures/new_file_name.rb"}])
 
           allow(@rubocop).to receive(:`)
-            .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/another_ruby_file.rb')
+            .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/new_file_name.rb spec/fixtures/another_ruby_file.rb')
             .and_return(response_another_ruby_file)
 
           @rubocop.lint
@@ -259,6 +261,7 @@ module Danger
           allow(@rubocop.git).to receive(:modified_files)
             .and_return(['spec/fixtures/ruby_file.rb'])
           allow(@rubocop.git).to receive(:added_files).and_return([])
+          allow(@rubocop.git).to receive(:renamed_files).and_return([])
           allow(@rubocop).to receive(:`)
             .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/ruby_file.rb')
             .and_return(response_ruby_file)
@@ -281,6 +284,7 @@ EOS
               allow(@rubocop.git).to receive(:modified_files)
                 .and_return(['spec/fixtures/ruby_file.rb'])
               allow(@rubocop.git).to receive(:added_files).and_return([])
+              allow(@rubocop.git).to receive(:renamed_files).and_return([])
               allow(@rubocop).to receive(:`)
                 .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/ruby_file.rb')
                 .and_return(response_ruby_file)
@@ -297,6 +301,7 @@ EOS
               allow(@rubocop.git).to receive(:modified_files)
                 .and_return(['spec/fixtures/ruby_file.rb'])
               allow(@rubocop.git).to receive(:added_files).and_return([])
+              allow(@rubocop.git).to receive(:renamed_files).and_return([])
               allow(@rubocop).to receive(:`)
                 .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/ruby_file.rb')
                 .and_return(response_ruby_file)
@@ -319,6 +324,7 @@ EOS
             allow(@rubocop.git).to receive(:modified_files)
               .and_return(modified_files)
             allow(@rubocop.git).to receive(:added_files).and_return([])
+            allow(@rubocop.git).to receive(:renamed_files).and_return([])
 
             expect { @rubocop.lint }.not_to raise_error
           end
@@ -330,6 +336,7 @@ EOS
             allow(@rubocop.git).to receive(:modified_files)
               .and_return(['spec/fixtures/ruby_file.rb'])
             allow(@rubocop.git).to receive(:added_files).and_return([])
+            allow(@rubocop.git).to receive(:renamed_files).and_return([])
             allow(@rubocop).to receive(:`)
               .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/ruby_file.rb')
               .and_return(response_ruby_file)
