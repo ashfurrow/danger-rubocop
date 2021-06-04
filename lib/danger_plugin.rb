@@ -36,9 +36,10 @@ module Danger
       inline_comment = config[:inline_comment] || false
       fail_on_inline_comment = config[:fail_on_inline_comment] || false
       include_cop_names = config[:include_cop_names] || false
+      rubocop_cmd = config[:rubocop_cmd] || 'rubocop'
 
       files_to_lint = fetch_files_to_lint(files)
-      files_to_report = rubocop(files_to_lint, force_exclusion, only_report_new_offenses, config_path: config_path)
+      files_to_report = rubocop(files_to_lint, force_exclusion, only_report_new_offenses, cmd: rubocop_cmd, config_path: config_path)
 
       return if files_to_report.empty?
       return report_failures files_to_report if report_danger
@@ -52,8 +53,8 @@ module Danger
 
     private
 
-    def rubocop(files_to_lint, force_exclusion, only_report_new_offenses, config_path: nil)
-      base_command = ['rubocop', '-f', 'json', '--only-recognized-file-types']
+    def rubocop(files_to_lint, force_exclusion, only_report_new_offenses, cmd: 'rubocop', config_path: nil)
+      base_command = [cmd, '-f', 'json', '--only-recognized-file-types']
       base_command.concat(['--force-exclusion']) if force_exclusion
       base_command.concat(['--config', config_path.shellescape]) unless config_path.nil?
 

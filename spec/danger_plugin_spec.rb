@@ -312,6 +312,17 @@ EOS
                 .to eq("Violation Don't do that! { sticky: false, file: spec/fixtures/ruby_file.rb, line: 13, type: error }")
             end
           end
+
+          context 'using standardrb cmd' do
+            it 'executes using the standardrb cmd' do
+              allow(@rubocop).to receive(:`)
+                .with('bundle exec standardrb -f json --only-recognized-file-types --config path/to/rubocop.yml spec/fixtures/ruby_file.rb')
+                .and_return(response_ruby_file)
+
+              # Do it
+              @rubocop.lint(files: 'spec/fixtures/ruby*.rb', rubocop_cmd: 'standardrb', config: 'path/to/rubocop.yml')
+            end
+          end
         end
 
         describe 'a filename with special characters' do
