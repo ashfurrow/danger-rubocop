@@ -2,7 +2,7 @@
 
 # Danger Rubocop
 
-A [Danger](https://github.com/danger/danger) plugin for [Rubocop](https://github.com/bbatsov/rubocop).
+A [Danger](https://github.com/danger/danger) plugin for [Rubocop](https://github.com/bbatsov/rubocop) (and compatible wrappers such as [Standard](https://github.com/testdouble/standard/)).
 
 ## Installation
 
@@ -37,6 +37,12 @@ github.dismiss_out_of_range_messages
 rubocop.lint inline_comment: true
 ```
 
+> Format using `standardrb` instead of Rubocop
+
+```ruby
+rubocop.lint rubocop_cmd: 'standardrb'
+```
+
 #### Methods
 
 `lint(config: Hash)`
@@ -57,6 +63,7 @@ The following keys are supported:
 * `only_report_new_offenses`: pass `true` to only report offenses that are in current user's scope.
    Note that this won't mark offenses for _Metrics/XXXLength_ if you add lines to an already existing scope.
 * `include_cop_names`: Prepends cop names to the output messages. Example: "Layout/EmptyLinesAroundBlockBody: Extra empty line detected at block body end."
+* `rubocop_cmd`: Allows you to change the rubocop executable that's invoked. This is used to support rubocop wrappers like [Standard](https://github.com/testdouble/standard/) by passing `standardrb` as the value.
 
 
 Passing `files` as only argument is also supported for backward compatibility.
