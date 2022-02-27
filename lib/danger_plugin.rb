@@ -129,17 +129,14 @@ module Danger
         file['offenses'].map do |offense|
           offense_message = offense['message']
           offense_message = offense['cop_name'] + ': ' + offense_message if include_cop_names
-          arguments = [
-            offense_message,
-            {
-              file: file['path'],
-              line: offense['location']['line']
-            }
-          ]
+          kargs = {
+            file: file['path'],
+            line: offense['location']['line']
+          }
           if fail_on_inline_comment
-            fail(*arguments)
+            fail(offense_message, **kargs)
           else
-            warn(*arguments)
+            warn(offense_message, **kargs)
           end
         end
       end
