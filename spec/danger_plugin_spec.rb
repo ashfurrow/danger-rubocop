@@ -1,5 +1,5 @@
 require File.expand_path('spec_helper', __dir__)
-require 'debug'
+
 module Danger
   describe DangerRubocop do
     it 'is a plugin' do
