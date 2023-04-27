@@ -58,6 +58,7 @@ The following keys are supported:
   despite the plugin providing the list of files explicitly)
 * `inline_comment`: pass `true` to comment inline of the diffs.
 * `fail_on_inline_comment`: pass `true` to use `fail` instead of `warn` on inline comment.
+* `report_severity`: pass `true` to use `fail` or `warn` based on Rubocop severity.
 * `report_danger`: pass true to report errors to Danger, and break CI.
 * `config`: path to the `.rubocop.yml` file.
 * `only_report_new_offenses`: pass `true` to only report offenses that are in current user's scope.
