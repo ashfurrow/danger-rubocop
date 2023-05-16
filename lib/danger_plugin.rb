@@ -35,6 +35,7 @@ module Danger
       only_report_new_offenses = config[:only_report_new_offenses] || false
       inline_comment = config[:inline_comment] || false
       fail_on_inline_comment = config[:fail_on_inline_comment] || false
+      report_severity = config[:report_severity] || false
       include_cop_names = config[:include_cop_names] || false
       rubocop_cmd = config[:rubocop_cmd] || 'rubocop'
 
@@ -45,7 +46,7 @@ module Danger
       return report_failures files_to_report if report_danger
 
       if inline_comment
-        add_violation_for_each_line(files_to_report, fail_on_inline_comment, include_cop_names: include_cop_names)
+        add_violation_for_each_line(files_to_report, fail_on_inline_comment, report_severity, include_cop_names: include_cop_names)
       else
         markdown offenses_message(files_to_report, include_cop_names: include_cop_names)
       end
@@ -124,7 +125,7 @@ module Danger
       end
     end
 
-    def add_violation_for_each_line(offending_files, fail_on_inline_comment, include_cop_names: false)
+    def add_violation_for_each_line(offending_files, fail_on_inline_comment, report_severity, include_cop_names: false)
       offending_files.flat_map do |file|
         file['offenses'].map do |offense|
           offense_message = offense['message']
@@ -134,6 +135,8 @@ module Danger
             line: offense['location']['line']
           }
           if fail_on_inline_comment
+            fail(offense_message, **kargs)
+          elsif report_severity && %w[error fatal].include?(offense['severity'])
             fail(offense_message, **kargs)
           else
             warn(offense_message, **kargs)
