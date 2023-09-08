@@ -299,7 +299,7 @@ EOS
           end
 
           context 'with fail_on_inline_comment option' do
-            it 'reports violations as line by line failures' do
+            before do
               allow(@rubocop.git).to receive(:modified_files)
                 .and_return(['spec/fixtures/ruby_file.rb'])
               allow(@rubocop.git).to receive(:added_files).and_return([])
@@ -307,11 +307,20 @@ EOS
               allow(@rubocop).to receive(:`)
                 .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/ruby_file.rb')
                 .and_return(response_ruby_file)
+            end
 
+            it 'reports violations as line by line failures' do
               @rubocop.lint(fail_on_inline_comment: true, inline_comment: true)
 
               expect(@rubocop.violation_report[:errors].first.to_s)
                 .to eq("Violation Don't do that! { sticky: false, file: spec/fixtures/ruby_file.rb, line: 13, type: error }")
+            end
+
+            it 'includes cop names when include_cop_names is set' do
+              @rubocop.lint(fail_on_inline_comment: true, inline_comment: true, include_cop_names: true)
+
+              expect(@rubocop.violation_report[:errors].first.to_s)
+                .to eq("Violation Syntax/WhetherYouShouldDoThat: Don't do that! { sticky: false, file: spec/fixtures/ruby_file.rb, line: 13, type: error }")
             end
           end
         end
