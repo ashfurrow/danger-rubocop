@@ -382,8 +382,7 @@ EOS
         end
 
         describe 'report to danger' do
-          let(:fail_msg) { %{spec/fixtures/ruby_file.rb | 13 | Don't do that!} }
-          it 'reports to danger' do
+          before do
             allow(@rubocop.git).to receive(:modified_files)
               .and_return(['spec/fixtures/ruby_file.rb'])
             allow(@rubocop.git).to receive(:added_files).and_return([])
@@ -391,9 +390,19 @@ EOS
             allow(@rubocop).to receive(:`)
               .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/ruby_file.rb')
               .and_return(response_ruby_file)
+          end
 
+          it 'reports to danger' do
+            fail_msg = %{spec/fixtures/ruby_file.rb | 13 | Don't do that!}
             expect(@rubocop).to receive(:fail).with(fail_msg)
             @rubocop.lint(report_danger: true)
+          end
+
+          it 'includes cop names when include_cop_names is set' do
+            fail_msg = %{spec/fixtures/ruby_file.rb | 13 | Syntax/WhetherYouShouldDoThat: Don't do that!}
+
+            expect(@rubocop).to receive(:fail).with(fail_msg)
+            @rubocop.lint(report_danger: true, include_cop_names: true)
           end
         end
       end
