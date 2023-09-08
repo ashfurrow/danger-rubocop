@@ -108,8 +108,7 @@ module Danger
         style: { border_i: '|' },
         rows: offending_files.flat_map do |file|
           file['offenses'].map do |offense|
-            offense_message = offense['message']
-            offense_message = offense['cop_name'] + ': ' + offense_message if include_cop_names
+            offense_message = offense_message(offense, include_cop_names: include_cop_names)
             [file['path'], offense['location']['line'], offense_message]
           end
         end
@@ -128,8 +127,7 @@ module Danger
     def add_violation_for_each_line(offending_files, fail_on_inline_comment, report_severity, include_cop_names: false)
       offending_files.flat_map do |file|
         file['offenses'].map do |offense|
-          offense_message = offense['message']
-          offense_message = offense['cop_name'] + ': ' + offense_message if include_cop_names
+          offense_message = offense_message(offense, include_cop_names: include_cop_names)
           kargs = {
             file: file['path'],
             line: offense['location']['line']
@@ -154,6 +152,12 @@ module Danger
         Dir.glob(files)
       end
       Shellwords.join(to_lint)
+    end
+
+    def offense_message(offense, include_cop_names: false)
+      return offense['message'] unless include_cop_names
+
+      "#{offense['cop_name']}: #{offense['message']}"
     end
   end
 end
