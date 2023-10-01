@@ -43,7 +43,7 @@ module Danger
       files_to_report = rubocop(files_to_lint, force_exclusion, only_report_new_offenses, cmd: rubocop_cmd, config_path: config_path)
 
       return if files_to_report.empty?
-      return report_failures files_to_report if report_danger
+      return report_failures(files_to_report, include_cop_names: include_cop_names) if report_danger
 
       if inline_comment
         add_violation_for_each_line(files_to_report, fail_on_inline_comment, report_severity, include_cop_names: include_cop_names)
@@ -108,8 +108,7 @@ module Danger
         style: { border_i: '|' },
         rows: offending_files.flat_map do |file|
           file['offenses'].map do |offense|
-            offense_message = offense['message']
-            offense_message = offense['cop_name'] + ': ' + offense_message if include_cop_names
+            offense_message = offense_message(offense, include_cop_names: include_cop_names)
             [file['path'], offense['location']['line'], offense_message]
           end
         end
@@ -117,10 +116,11 @@ module Danger
       message + table.split("\n")[1..-2].join("\n")
     end
 
-    def report_failures(offending_files)
+    def report_failures(offending_files, include_cop_names: false)
       offending_files.each do |file|
         file['offenses'].each do |offense|
-          fail "#{file['path']} | #{offense['location']['line']} | #{offense['message']}"
+          offense_message = offense_message(offense, include_cop_names: include_cop_names)
+          fail "#{file['path']} | #{offense['location']['line']} | #{offense_message}"
         end
       end
     end
@@ -128,8 +128,7 @@ module Danger
     def add_violation_for_each_line(offending_files, fail_on_inline_comment, report_severity, include_cop_names: false)
       offending_files.flat_map do |file|
         file['offenses'].map do |offense|
-          offense_message = offense['message']
-          offense_message = offense['cop_name'] + ': ' + offense_message if include_cop_names
+          offense_message = offense_message(offense, include_cop_names: include_cop_names)
           kargs = {
             file: file['path'],
             line: offense['location']['line']
@@ -154,6 +153,12 @@ module Danger
         Dir.glob(files)
       end
       Shellwords.join(to_lint)
+    end
+
+    def offense_message(offense, include_cop_names: false)
+      return offense['message'] unless include_cop_names
+
+      "#{offense['cop_name']}: #{offense['message']}"
     end
   end
 end

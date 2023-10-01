@@ -299,7 +299,7 @@ EOS
           end
 
           context 'with fail_on_inline_comment option' do
-            it 'reports violations as line by line failures' do
+            before do
               allow(@rubocop.git).to receive(:modified_files)
                 .and_return(['spec/fixtures/ruby_file.rb'])
               allow(@rubocop.git).to receive(:added_files).and_return([])
@@ -307,61 +307,70 @@ EOS
               allow(@rubocop).to receive(:`)
                 .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/ruby_file.rb')
                 .and_return(response_ruby_file)
+            end
 
+            it 'reports violations as line by line failures' do
               @rubocop.lint(fail_on_inline_comment: true, inline_comment: true)
 
               expect(@rubocop.violation_report[:errors].first.to_s)
                 .to eq("Violation Don't do that! { sticky: false, file: spec/fixtures/ruby_file.rb, line: 13, type: error }")
             end
-          end
 
-          context 'with report_severity option' do
-            context 'file with error' do
-              it 'reports violations by rubocop severity' do
-                allow(@rubocop.git).to receive(:added_files).and_return([])
-                allow(@rubocop.git).to receive(:modified_files)
-                  .and_return(["spec/fixtures/another_ruby_file.rb"])
-                allow(@rubocop.git).to receive(:renamed_files).and_return([])
+            it 'includes cop names when include_cop_names is set' do
+              @rubocop.lint(fail_on_inline_comment: true, inline_comment: true, include_cop_names: true)
 
-                allow(@rubocop).to receive(:`)
-                  .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/another_ruby_file.rb')
-                  .and_return(response_another_ruby_file)
-
-                @rubocop.lint(report_severity: true, inline_comment: true)
-
-                expect(@rubocop.violation_report[:errors].first.to_s)
-                  .to eq("Violation Don't do that! { sticky: false, file: spec/fixtures/another_ruby_file.rb, line: 23, type: error }")
-              end
-            end
-
-            context 'file with warning' do
-              it 'reports violations by rubocop severity' do
-                allow(@rubocop.git).to receive(:added_files).and_return([])
-                allow(@rubocop.git).to receive(:modified_files)
-                  .and_return(["spec/fixtures/ruby_file.rb"])
-                allow(@rubocop.git).to receive(:renamed_files).and_return([])
-
-                allow(@rubocop).to receive(:`)
-                  .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/ruby_file.rb')
-                  .and_return(response_ruby_file)
-
-                @rubocop.lint(report_severity: true, inline_comment: true)
-
-                expect(@rubocop.violation_report[:warnings].first.to_s)
-                  .to eq("Violation Don't do that! { sticky: false, file: spec/fixtures/ruby_file.rb, line: 13, type: warning }")
-              end
+              expect(@rubocop.violation_report[:errors].first.to_s)
+                .to eq("Violation Syntax/WhetherYouShouldDoThat: Don't do that! { sticky: false, file: spec/fixtures/ruby_file.rb, line: 13, type: error }")
             end
           end
+        end
 
-          context 'using standardrb cmd' do
-            it 'executes using the standardrb cmd' do
+        context 'with report_severity option' do
+          context 'file with error' do
+            it 'reports violations by rubocop severity' do
+              allow(@rubocop.git).to receive(:added_files).and_return([])
+              allow(@rubocop.git).to receive(:modified_files)
+                .and_return(["spec/fixtures/another_ruby_file.rb"])
+              allow(@rubocop.git).to receive(:renamed_files).and_return([])
+
               allow(@rubocop).to receive(:`)
-                .with('bundle exec standardrb -f json --only-recognized-file-types --config path/to/rubocop.yml spec/fixtures/ruby_file.rb')
-                .and_return(response_ruby_file)
+                .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/another_ruby_file.rb')
+                .and_return(response_another_ruby_file)
 
-              # Do it
-              @rubocop.lint(files: 'spec/fixtures/ruby*.rb', rubocop_cmd: 'standardrb', config: 'path/to/rubocop.yml')
+              @rubocop.lint(report_severity: true, inline_comment: true)
+
+              expect(@rubocop.violation_report[:errors].first.to_s)
+                .to eq("Violation Don't do that! { sticky: false, file: spec/fixtures/another_ruby_file.rb, line: 23, type: error }")
             end
+          end
+        end
+
+        context 'file with warning' do
+          it 'reports violations by rubocop severity' do
+            allow(@rubocop.git).to receive(:added_files).and_return([])
+            allow(@rubocop.git).to receive(:modified_files)
+              .and_return(["spec/fixtures/ruby_file.rb"])
+            allow(@rubocop.git).to receive(:renamed_files).and_return([])
+
+            allow(@rubocop).to receive(:`)
+              .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/ruby_file.rb')
+              .and_return(response_ruby_file)
+
+            @rubocop.lint(report_severity: true, inline_comment: true)
+
+            expect(@rubocop.violation_report[:warnings].first.to_s)
+              .to eq("Violation Don't do that! { sticky: false, file: spec/fixtures/ruby_file.rb, line: 13, type: warning }")
+          end
+        end
+
+        context 'using standardrb cmd' do
+          it 'executes using the standardrb cmd' do
+            allow(@rubocop).to receive(:`)
+              .with('bundle exec standardrb -f json --only-recognized-file-types --config path/to/rubocop.yml spec/fixtures/ruby_file.rb')
+              .and_return(response_ruby_file)
+
+            # Do it
+            @rubocop.lint(files: 'spec/fixtures/ruby*.rb', rubocop_cmd: 'standardrb', config: 'path/to/rubocop.yml')
           end
         end
 
@@ -382,8 +391,7 @@ EOS
         end
 
         describe 'report to danger' do
-          let(:fail_msg) { %{spec/fixtures/ruby_file.rb | 13 | Don't do that!} }
-          it 'reports to danger' do
+          before do
             allow(@rubocop.git).to receive(:modified_files)
               .and_return(['spec/fixtures/ruby_file.rb'])
             allow(@rubocop.git).to receive(:added_files).and_return([])
@@ -391,9 +399,19 @@ EOS
             allow(@rubocop).to receive(:`)
               .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/ruby_file.rb')
               .and_return(response_ruby_file)
+          end
 
+          it 'reports to danger' do
+            fail_msg = %{spec/fixtures/ruby_file.rb | 13 | Don't do that!}
             expect(@rubocop).to receive(:fail).with(fail_msg)
             @rubocop.lint(report_danger: true)
+          end
+
+          it 'includes cop names when include_cop_names is set' do
+            fail_msg = %{spec/fixtures/ruby_file.rb | 13 | Syntax/WhetherYouShouldDoThat: Don't do that!}
+
+            expect(@rubocop).to receive(:fail).with(fail_msg)
+            @rubocop.lint(report_danger: true, include_cop_names: true)
           end
         end
       end
