@@ -34,6 +34,7 @@ module Danger
       report_danger = config[:report_danger] || false
       only_report_new_offenses = config[:only_report_new_offenses] || false
       inline_comment = config[:inline_comment] || false
+      group_inline_comments = config[:group_inline_comments] || false
       fail_on_inline_comment = config[:fail_on_inline_comment] || false
       report_severity = config[:report_severity] || false
       include_cop_names = config[:include_cop_names] || false
@@ -45,7 +46,9 @@ module Danger
       return if files_to_report.empty?
       return report_failures(files_to_report, include_cop_names: include_cop_names) if report_danger
 
-      if inline_comment
+      if inline_comment && group_inline_comments
+        add_grouped_violation_for_each_line(files_to_report, fail_on_inline_comment, report_severity, include_cop_names: include_cop_names)
+      elsif inline_comment
         add_violation_for_each_line(files_to_report, fail_on_inline_comment, report_severity, include_cop_names: include_cop_names)
       else
         markdown offenses_message(files_to_report, include_cop_names: include_cop_names)
@@ -140,6 +143,37 @@ module Danger
           else
             warn(offense_message, **kargs)
           end
+        end
+      end
+    end
+
+    def add_grouped_violation_for_each_line(offending_files, fail_on_inline_comment, report_severity, include_cop_names: false)
+      grouped_offense_messages = Hash.new { |h, k| h[k] = [] }
+      offending_files.flat_map do |file|
+        file['offenses'].map do |offense|
+          offense_message = offense_message(offense, include_cop_names: include_cop_names)
+          kargs = {
+            file: file['path'],
+            line: offense['location']['line']
+          }
+          grouped_offense_messages[kargs] << offense_message
+        end
+      end
+
+      grouped_offense_messages.each do |kargs, offense_messages|
+        grouped_offense_message = if offense_messages.length > 1
+          "\n" + offense_messages.map do |offense_message|
+            "* #{offense_message}"
+          end.join("\n")
+        else
+          offense_messages[0]
+        end
+        if fail_on_inline_comment
+          fail(grouped_offense_message, **kargs)
+        elsif report_severity && %w[error fatal].include?(offense['severity'])
+          fail(grouped_offense_message, **kargs)
+        else
+          warn(grouped_offense_message, **kargs)
         end
       end
     end
