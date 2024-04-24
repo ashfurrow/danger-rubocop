@@ -66,7 +66,7 @@ The following keys are supported:
    Note that this won't mark offenses for _Metrics/XXXLength_ if you add lines to an already existing scope.
 * `include_cop_names`: Prepends cop names to the output messages. Example: "Layout/EmptyLinesAroundBlockBody: Extra empty line detected at block body end."
 * `rubocop_cmd`: Allows you to change the rubocop executable that's invoked. This is used to support rubocop wrappers like [Standard](https://github.com/testdouble/standard/) by passing `standardrb` as the value.
-
+* `skip_bundle_exec`: When there is a `Gemfile` in the project, Rubocop will be executed using [Bundler](https://bundler.io). When `true`, this flag will force Rubocop to run without `bundle exec`.
 
 Passing `files` as only argument is also supported for backward compatibility.
 
