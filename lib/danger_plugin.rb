@@ -38,9 +38,10 @@ module Danger
       report_severity = config[:report_severity] || false
       include_cop_names = config[:include_cop_names] || false
       rubocop_cmd = config[:rubocop_cmd] || 'rubocop'
+      skip_bundle_exec = config[:skip_bundle_exec] || false
 
       files_to_lint = fetch_files_to_lint(files)
-      files_to_report = rubocop(files_to_lint, force_exclusion, only_report_new_offenses, cmd: rubocop_cmd, config_path: config_path)
+      files_to_report = rubocop(files_to_lint, force_exclusion, only_report_new_offenses, cmd: rubocop_cmd, config_path: config_path, skip_bundle_exec: skip_bundle_exec)
 
       return if files_to_report.empty?
       return report_failures(files_to_report, include_cop_names: include_cop_names) if report_danger
@@ -54,12 +55,12 @@ module Danger
 
     private
 
-    def rubocop(files_to_lint, force_exclusion, only_report_new_offenses, cmd: 'rubocop', config_path: nil)
+    def rubocop(files_to_lint, force_exclusion, only_report_new_offenses, cmd: 'rubocop', config_path: nil, skip_bundle_exec: false)
       base_command = [cmd, '-f', 'json', '--only-recognized-file-types']
       base_command.concat(['--force-exclusion']) if force_exclusion
       base_command.concat(['--config', config_path.shellescape]) unless config_path.nil?
 
-      rubocop_output = `#{'bundle exec ' if File.exist?('Gemfile')}#{base_command.join(' ')} #{files_to_lint}`
+      rubocop_output = `#{'bundle exec ' if File.exist?('Gemfile') && !skip_bundle_exec}#{base_command.join(' ')} #{files_to_lint}`
 
       return [] if rubocop_output.empty?
 
