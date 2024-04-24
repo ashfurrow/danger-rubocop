@@ -374,6 +374,34 @@ EOS
           end
         end
 
+        context 'using Bundler' do
+          it 'uses `bundle exec` when there is a Gemfile' do
+            allow(@rubocop).to receive(:`)
+              .with('bundle exec rubocop -f json --only-recognized-file-types --config path/to/rubocop.yml spec/fixtures/ruby_file.rb')
+              .and_return(response_ruby_file)
+
+            @rubocop.lint(files: 'spec/fixtures/ruby*.rb', config: 'path/to/rubocop.yml')
+          end
+
+          it 'doesn\'t use `bundle exec` when there is no Gemfile' do
+            allow(File).to receive(:exist?).with('Gemfile').and_return(false)
+
+            allow(@rubocop).to receive(:`)
+              .with('rubocop -f json --only-recognized-file-types --config path/to/rubocop.yml spec/fixtures/ruby_file.rb')
+              .and_return(response_ruby_file)
+
+            @rubocop.lint(files: 'spec/fixtures/ruby*.rb', config: 'path/to/rubocop.yml')
+          end
+
+          it 'doesn\'t use `bundle exec` when there is a Gemfile but skip_bundle_exec is true' do
+            allow(@rubocop).to receive(:`)
+              .with('rubocop -f json --only-recognized-file-types --config path/to/rubocop.yml spec/fixtures/ruby_file.rb')
+              .and_return(response_ruby_file)
+
+            @rubocop.lint(files: 'spec/fixtures/ruby*.rb', config: 'path/to/rubocop.yml', skip_bundle_exec: true)
+          end
+        end
+
         describe 'a filename with special characters' do
           it 'is shell escaped' do
             modified_files = [
