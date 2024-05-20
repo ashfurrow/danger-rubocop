@@ -323,6 +323,81 @@ EOS
                 .to eq("Violation Syntax/WhetherYouShouldDoThat: Don't do that! { sticky: false, file: spec/fixtures/ruby_file.rb, line: 13, type: error }")
             end
           end
+
+          context 'with group_inline_comments' do
+            context 'with multiple violations on the same line' do
+              let(:response_ruby_file) do
+                {
+                  'files' => [
+                    {
+                      'path' => 'spec/fixtures/ruby_file.rb',
+                      'offenses' => [
+                        {
+                          'cop_name' => 'Syntax/WhetherYouShouldDoThat',
+                          'message' => "Don't do that!",
+                          'severity' => 'warning',
+                          'location' => { 'line' => 13 }
+                        },
+                        {
+                          'cop_name' => 'Syntax/WhetherYouShouldDoThat',
+                          'message' => "Also don't do that!",
+                          'severity' => 'warning',
+                          'location' => { 'line' => 13 }
+                        }
+                      ]
+                    }
+                  ]
+                }.to_json
+              end
+
+              it 'reports multiple violations grouped by line in a bulleted list' do
+                allow(@rubocop.git).to receive(:modified_files)
+                  .and_return(['spec/fixtures/ruby_file.rb'])
+                allow(@rubocop.git).to receive(:added_files).and_return([])
+                allow(@rubocop.git).to receive(:renamed_files).and_return([])
+                allow(@rubocop).to receive(:`)
+                  .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/ruby_file.rb')
+                  .and_return(response_ruby_file)
+
+                @rubocop.lint(inline_comment: true, group_inline_comments: true)
+
+                warning = @rubocop.violation_report[:warnings].first
+                expect(warning.file)
+                  .to eq("spec/fixtures/ruby_file.rb")
+                expect(warning.line)
+                  .to eq(13)
+                expect(warning.message)
+                  .to eq(
+                    <<~HEREDOC
+
+                      * Don't do that!
+                      * Also don't do that!
+                    HEREDOC
+                  .chomp
+                  )
+              end
+            end
+
+            it 'reports single violations grouped by line as normal line by line warnings' do
+              allow(@rubocop.git).to receive(:modified_files)
+                .and_return(['spec/fixtures/ruby_file.rb'])
+              allow(@rubocop.git).to receive(:added_files).and_return([])
+              allow(@rubocop.git).to receive(:renamed_files).and_return([])
+              allow(@rubocop).to receive(:`)
+                .with('bundle exec rubocop -f json --only-recognized-file-types spec/fixtures/ruby_file.rb')
+                .and_return(response_ruby_file)
+
+              @rubocop.lint(inline_comment: true, group_inline_comments: true)
+
+              warning = @rubocop.violation_report[:warnings].first
+              expect(warning.file)
+                .to eq("spec/fixtures/ruby_file.rb")
+              expect(warning.line)
+                .to eq(13)
+              expect(warning.message)
+                .to eq("Don't do that!")
+            end
+          end
         end
 
         context 'with report_severity option' do
